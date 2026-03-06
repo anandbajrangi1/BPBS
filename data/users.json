@@ -1,0 +1,52 @@
+[
+    {
+        "id": "1",
+        "name": "Arjuna Das",
+        "phone": "+91-9876543210",
+        "email": "arjuna@example.com",
+        "joinDate": "2025-06-01",
+        "japaRounds": 1840,
+        "status": "active",
+        "totalDonation": 5000
+    },
+    {
+        "id": "2",
+        "name": "Priya Sharma",
+        "phone": "+91-9988776655",
+        "email": "priya@example.com",
+        "joinDate": "2025-08-15",
+        "japaRounds": 960,
+        "status": "active",
+        "totalDonation": 2500
+    },
+    {
+        "id": "3",
+        "name": "Radha Devi",
+        "phone": "+91-8765432109",
+        "email": "radha@example.com",
+        "joinDate": "2025-09-10",
+        "japaRounds": 2400,
+        "status": "active",
+        "totalDonation": 15000
+    },
+    {
+        "id": "4",
+        "name": "Govind Kumar",
+        "phone": "+91-7654321098",
+        "email": "govind@example.com",
+        "joinDate": "2025-11-20",
+        "japaRounds": 480,
+        "status": "inactive",
+        "totalDonation": 1000
+    },
+    {
+        "id": "5",
+        "name": "Meena Patel",
+        "phone": "+91-6543210987",
+        "email": "meena@example.com",
+        "joinDate": "2026-01-05",
+        "japaRounds": 160,
+        "status": "active",
+        "totalDonation": 0
+    }
+]

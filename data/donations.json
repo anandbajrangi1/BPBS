@@ -1,0 +1,50 @@
+[
+    {
+        "id": "1",
+        "user": "Radha Devi",
+        "amount": 15000,
+        "date": "2026-02-28",
+        "method": "UPI",
+        "purpose": "Temple Construction"
+    },
+    {
+        "id": "2",
+        "user": "Arjuna Das",
+        "amount": 5000,
+        "date": "2026-03-01",
+        "method": "Card",
+        "purpose": "General Donation"
+    },
+    {
+        "id": "3",
+        "user": "Priya Sharma",
+        "amount": 2500,
+        "date": "2026-03-02",
+        "method": "UPI",
+        "purpose": "Food for Devotees"
+    },
+    {
+        "id": "4",
+        "user": "Govind Kumar",
+        "amount": 1000,
+        "date": "2026-02-20",
+        "method": "Net Banking",
+        "purpose": "General Donation"
+    },
+    {
+        "id": "5",
+        "user": "Anonymous",
+        "amount": 10000,
+        "date": "2026-03-05",
+        "method": "UPI",
+        "purpose": "Nitya Seva"
+    },
+    {
+        "id": "6",
+        "user": "Meera Iyer",
+        "amount": 3000,
+        "date": "2026-03-06",
+        "method": "Card",
+        "purpose": "Janmashtami Fund"
+    }
+]

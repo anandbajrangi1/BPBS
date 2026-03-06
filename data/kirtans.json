@@ -1,0 +1,62 @@
+[
+    {
+        "id": "1",
+        "title": "Hare Krishna Mahamantra",
+        "artist": "H.H. Lokanath Swami",
+        "duration": "18:42",
+        "type": "kirtan",
+        "category": "Mahamantra",
+        "plays": 12450,
+        "featured": true
+    },
+    {
+        "id": "2",
+        "title": "Govinda Jaya Jaya",
+        "artist": "Amala Kirtan Das",
+        "duration": "12:30",
+        "type": "bhajan",
+        "category": "Bhajan",
+        "plays": 8200,
+        "featured": false
+    },
+    {
+        "id": "3",
+        "title": "Nrsimha Kavaca",
+        "artist": "Bhakti Vaibhava Swami",
+        "duration": "9:15",
+        "type": "prayer",
+        "category": "Prayer",
+        "plays": 5600,
+        "featured": false
+    },
+    {
+        "id": "4",
+        "title": "Jaya Radha Madhava",
+        "artist": "H.H. Indradyumna Swami",
+        "duration": "22:10",
+        "type": "kirtan",
+        "category": "Mahamantra",
+        "plays": 15000,
+        "featured": true
+    },
+    {
+        "id": "5",
+        "title": "Damodarashtakam",
+        "artist": "Radha Kanta Das",
+        "duration": "8:05",
+        "type": "prayer",
+        "category": "Prayer",
+        "plays": 9300,
+        "featured": false
+    },
+    {
+        "id": "6",
+        "title": "Sri Guru Vandana",
+        "artist": "Narottama Das Thakura",
+        "duration": "6:20",
+        "type": "bhajan",
+        "category": "Bhajan",
+        "plays": 7100,
+        "featured": false
+    }
+]

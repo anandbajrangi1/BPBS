@@ -1,0 +1,54 @@
+[
+    {
+        "id": "1",
+        "title": "Bhagavad Gita: As It Is",
+        "instructor": "H.G. Radhavallabh Das",
+        "lessons": 24,
+        "duration": "12 hours",
+        "level": "Beginner",
+        "enrolled": 1240,
+        "rating": 4.9,
+        "description": "A comprehensive study of the Bhagavad Gita with practical application for daily life. Covers all 18 chapters.",
+        "image": "/images/gita-course.jpg",
+        "featured": true
+    },
+    {
+        "id": "2",
+        "title": "Japa Meditation Mastery",
+        "instructor": "H.G. Amala Kirtan Das",
+        "lessons": 12,
+        "duration": "6 hours",
+        "level": "All Levels",
+        "enrolled": 856,
+        "rating": 4.8,
+        "description": "Master the art of Japa chanting. Learn proper pronunciation, counting, and deepening your meditation practice.",
+        "image": "/images/japa-course.jpg",
+        "featured": false
+    },
+    {
+        "id": "3",
+        "title": "Srimad Bhagavatam Intro",
+        "instructor": "H.G. Bhakta Vatsala Das",
+        "lessons": 36,
+        "duration": "18 hours",
+        "level": "Intermediate",
+        "enrolled": 620,
+        "rating": 4.7,
+        "description": "An introduction to the Srimad Bhagavatam — the ripened fruit of Vedic literature.",
+        "image": "/images/sb-course.jpg",
+        "featured": true
+    },
+    {
+        "id": "4",
+        "title": "Kirtan & Devotional Music",
+        "instructor": "H.G. Narada Muni Das",
+        "lessons": 16,
+        "duration": "8 hours",
+        "level": "Beginner",
+        "enrolled": 430,
+        "rating": 4.9,
+        "description": "Learn to play mridanga and harmonium, and lead kirtan in your local community.",
+        "image": "/images/kirtan-course.jpg",
+        "featured": false
+    }
+]

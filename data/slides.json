@@ -1,0 +1,26 @@
+[
+    {
+        "id": "1",
+        "title": "Bhagavad Gita Course",
+        "image": "/images/slide-gita.jpg",
+        "subtitle": "Begin your spiritual journey",
+        "link": "/courses/1",
+        "color": "#FFB38E"
+    },
+    {
+        "id": "2",
+        "title": "Janmashtami Festival",
+        "image": "/images/slide-janmashtami.jpg",
+        "subtitle": "Celebrate with us — Aug 16",
+        "link": "/events/1",
+        "color": "#FFDA6C"
+    },
+    {
+        "id": "3",
+        "title": "Kirtan with Lokanath Swami",
+        "image": "/images/slide-kirtan.jpg",
+        "subtitle": "Live kirtan every Sunday",
+        "link": "/kirtan",
+        "color": "#E8A07A"
+    }
+]

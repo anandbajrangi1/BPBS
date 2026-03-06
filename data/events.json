@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "title": "Janmashtami Festival 2026",
+    "image": "/images/janmashtami.jpg",
+    "date": "2026-08-16",
+    "venue": "BPBS Temple, Sringeri",
+    "location": "Sringeri, Karnataka",
+    "description": "Celebrate the divine appearance day of Lord Krishna with midnight abhishek, kirtan, drama, and prasad distribution.",
+    "category": "Festival",
+    "rsvp": true,
+    "attendees": 450
+  },
+  {
+    "id": "2",
+    "title": "Mayapur Youth Camp",
+    "image": "/images/camp.jpg",
+    "date": "2026-04-10",
+    "venue": "ISKCON Mayapur, West Bengal",
+    "location": "Mayapur, West Bengal",
+    "description": "A 5-day spiritual youth retreat with morning programs, spiritual classes, debates, dramas and pilgrimage.",
+    "category": "Camp",
+    "rsvp": true,
+    "attendees": 200
+  },
+  {
+    "id": "3",
+    "title": "Sringeri Mahaprasad",
+    "image": "/images/prasad.jpg",
+    "date": "2026-03-20",
+    "venue": "BPBS Community Hall",
+    "location": "Sringeri, Karnataka",
+    "description": "Monthly Mahaprasad distribution program with kirtan, Gita class and a grand feast for devotees.",
+    "category": "Class",
+    "rsvp": false,
+    "attendees": 120
+  },
+  {
+    "id": "4",
+    "title": "Bhagavad Gita Weekend Course",
+    "image": "/images/gita-course.jpg",
+    "date": "2026-04-25",
+    "venue": "BPBS Ashram",
+    "location": "Bangalore, Karnataka",
+    "description": "A 2-day intensive Bhagavad Gita study course with H.G. Radhavallabh Das. Focus on practical application.",
+    "category": "Class",
+    "rsvp": true,
+    "attendees": 75
+  },
+  {
+    "id": "5",
+    "title": "Radhashtami Celebration",
+    "image": "/images/radhashtami.jpg",
+    "date": "2026-09-08",
+    "venue": "BPBS Temple",
+    "location": "Sringeri, Karnataka",
+    "description": "Grand celebration of Srimati Radharani's appearance day with flower offerings, kirtan, and drama.",
+    "category": "Festival",
+    "rsvp": true,
+    "attendees": 300
+  }
+]

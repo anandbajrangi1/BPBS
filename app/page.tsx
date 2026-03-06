@@ -1,65 +1,271 @@
-import Image from "next/image";
+import BottomNav from "@/components/BottomNav";
+import Slideshow from "@/components/Slideshow";
+import EventCard from "@/components/EventCard";
+import Link from "next/link";
+import { Search, Bell } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+const sadhnaItems = [
+  { label: "Japa", href: "/japa", emoji: "📿" },
+  { label: "Courses", href: "/courses", emoji: "📚" },
+  { label: "Audio", href: "/kirtan", emoji: "🎵" },
+  { label: "Video", href: "/videos", emoji: "📹" },
+  { label: "Reading", href: "/reading", emoji: "📖" },
+];
+
+export default async function HomePage() {
+  const slides = await prisma.slide.findMany({ orderBy: { order: "asc" } });
+  const events = await prisma.event.findMany({
+    orderBy: { date: "asc" },
+    take: 3,
+  });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="app-container">
+      {/* Top Header */}
+      <header
+        style={{
+          background: "linear-gradient(135deg, #4B2B1F 0%, #7B452F 100%)",
+          padding: "48px 16px 20px",
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+        }}
+      >
+        {/* Top bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div>
+            <p style={{ color: "rgba(255,230,200,0.8)", fontSize: 12, fontWeight: 500, marginBottom: 2 }}>
+              Hare Krishna 🙏
+            </p>
+            <h1
+              style={{
+                fontFamily: "'Crimson Text', serif",
+                fontSize: 22,
+                fontWeight: 600,
+                color: "white",
+                letterSpacing: 0.3,
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              BPBS Spiritual App
+            </h1>
+          </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(255,255,255,0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <Bell size={18} color="white" />
+            </button>
+            <Link href="/profile">
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #FFB38E, #FFDA6C)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                }}
+              >
+                🙏
+              </div>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Search bar */}
+        <Link href="/search">
+          <div
+            style={{
+              background: "rgba(255,255,255,0.12)",
+              borderRadius: 999,
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <Search size={16} color="rgba(255,255,255,0.6)" />
+            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 400 }}>
+              Search kirtans, courses, events…
+            </span>
+          </div>
+        </Link>
+      </header>
+
+      {/* Scrollable content */}
+      <div className="pb-nav" style={{ overflowY: "auto", height: "calc(100dvh - 142px)" }}>
+
+        {/* Slideshow */}
+        <div style={{ paddingTop: 16 }}>
+          <Slideshow slides={slides} />
         </div>
-      </main>
+
+        {/* Quick action tiles */}
+        <div style={{ padding: "16px 16px 8px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Link href="/japa" style={{ textDecoration: "none" }}>
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #FFB38E, #FFDA6C)",
+                  borderRadius: 16,
+                  padding: "18px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <span style={{ fontSize: 28 }}>📿</span>
+                <div>
+                  <div style={{ fontFamily: "'Crimson Text', serif", fontSize: 16, fontWeight: 700, color: "#4B2B1F" }}>Japa</div>
+                  <div style={{ fontSize: 11, color: "rgba(75,43,31,0.7)" }}>Chant & Count</div>
+                </div>
+              </div>
+            </Link>
+            <Link href="/kirtan" style={{ textDecoration: "none" }}>
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #4B2B1F, #7B452F)",
+                  borderRadius: 16,
+                  padding: "18px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <span style={{ fontSize: 28 }}>🎵</span>
+                <div>
+                  <div style={{ fontFamily: "'Crimson Text', serif", fontSize: 16, fontWeight: 700, color: "white" }}>Kirtan</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>Listen Now</div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Sadhna section */}
+        <div style={{ padding: "16px 0 8px" }}>
+          <div style={{ padding: "0 16px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10" }}>
+              🕉️ Sadhna
+            </h2>
+            <span style={{ fontSize: 12, color: "#FFB38E", fontWeight: 600 }}>See all</span>
+          </div>
+          <div
+            className="scrollbar-hide"
+            style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 16px" }}
+          >
+            {sadhnaItems.map((item) => (
+              <Link key={item.label} href={item.href} style={{ textDecoration: "none", flexShrink: 0 }}>
+                <div
+                  style={{
+                    background: "white",
+                    border: "1.5px solid #FFE0CC",
+                    borderRadius: 14,
+                    padding: "12px 18px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                    minWidth: 80,
+                    boxShadow: "0 2px 12px rgba(75,43,31,0.06)",
+                  }}
+                >
+                  <span style={{ fontSize: 24 }}>{item.emoji}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#4B2B1F" }}>{item.label}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Donation Banner */}
+        <div style={{ padding: "12px 16px" }}>
+          <Link href="/donate" style={{ textDecoration: "none" }}>
+            <div
+              style={{
+                background: "linear-gradient(135deg, #4B2B1F 0%, #7B452F 100%)",
+                borderRadius: 18,
+                padding: "20px 20px",
+                position: "relative",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              {/* Decorative element */}
+              <div style={{ position: "absolute", right: -20, top: -20, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,218,108,0.15)" }} />
+              <div style={{ position: "absolute", right: 40, bottom: -30, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,179,142,0.1)" }} />
+              <div>
+                <p style={{ color: "#FFDA6C", fontSize: 12, fontWeight: 700, marginBottom: 4, letterSpacing: 1 }}>
+                  🪔 SEVA OPPORTUNITY
+                </p>
+                <h3
+                  style={{
+                    fontFamily: "'Crimson Text', serif",
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: "white",
+                    marginBottom: 6,
+                  }}
+                >
+                  Support Temple Seva
+                </h3>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)" }}>
+                  Your donation helps devotees
+                </p>
+              </div>
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #FFB38E, #FFDA6C)",
+                  borderRadius: 999,
+                  padding: "10px 18px",
+                  color: "#4B2B1F",
+                  fontWeight: 800,
+                  fontSize: 13,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                Donate 🙏
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        {/* Events Section */}
+        <div style={{ padding: "12px 16px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10" }}>
+              📅 Upcoming Events
+            </h2>
+            <Link href="/events" style={{ fontSize: 12, color: "#FFB38E", fontWeight: 600, textDecoration: "none" }}>
+              See all
+            </Link>
+          </div>
+          {events.length === 0 ? (
+            <p style={{ color: "rgba(0,0,0,0.5)", fontSize: 13 }}>No upcoming events currently.</p>
+          ) : (
+            events.map((event: any) => <EventCard key={event.id} event={event} />)
+          )}
+        </div>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }
