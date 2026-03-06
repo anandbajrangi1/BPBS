@@ -30,7 +30,7 @@ async function main() {
             username: username.trim(),
             password: hashedPassword
         }
-    });
+    }) as any;
 
     console.log(`\n✅ Success! Admin account updated.`);
     console.log(`ID: ${user.id}`);
