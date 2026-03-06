@@ -8,10 +8,11 @@ import { useSession } from "next-auth/react";
 interface HeaderProps {
     title: string;
     showBack?: boolean;
+    backHref?: string;
     rightAction?: React.ReactNode;
 }
 
-export default function Header({ title, showBack = true, rightAction }: HeaderProps) {
+export default function Header({ title, showBack = true, backHref, rightAction }: HeaderProps) {
     const router = useRouter();
     const { data: session, status } = useSession();
 
@@ -33,22 +34,40 @@ export default function Header({ title, showBack = true, rightAction }: HeaderPr
             {/* Left: back button */}
             <div style={{ width: 40 }}>
                 {showBack && (
-                    <button
-                        onClick={() => router.back()}
-                        style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: "50%",
-                            border: "none",
-                            background: "#FFF3EC",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                        }}
-                    >
-                        <ArrowLeft size={18} color="#4B2B1F" />
-                    </button>
+                    backHref ? (
+                        <Link href={backHref}>
+                            <div style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: "50%",
+                                border: "none",
+                                background: "#FFF3EC",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                            }}>
+                                <ArrowLeft size={18} color="#4B2B1F" />
+                            </div>
+                        </Link>
+                    ) : (
+                        <button
+                            onClick={() => router.back()}
+                            style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: "50%",
+                                border: "none",
+                                background: "#FFF3EC",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <ArrowLeft size={18} color="#4B2B1F" />
+                        </button>
+                    )
                 )}
             </div>
 

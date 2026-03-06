@@ -1,22 +1,18 @@
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
-import { BookOpen, Clock, Star, Users, Check } from "lucide-react";
+import { BookOpen, Clock, Star, Users, Check, Video, PlayCircle } from "lucide-react";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import EnrollButton from "@/components/EnrollButton";
 
-const LESSONS = [
-    "Introduction & Paramparā",
-    "Chapter 1 — Observing the Armies",
-    "Chapter 2 — Contents of Gita (Part 1)",
-    "Chapter 2 — Contents of Gita (Part 2)",
-    "Chapter 3 — Karma-Yoga",
-    "Chapter 4 — Transcendental Knowledge",
-];
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const course = await prisma.course.findUnique({ where: { id } });
+    const course = await prisma.course.findUnique({
+        where: { id },
+        include: { lessons: { orderBy: { order: "asc" } } }
+    });
 
     if (!course) {
         notFound();
@@ -92,46 +88,56 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
 
                     {/* Curriculum */}
                     <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10", marginBottom: 14 }}>
-                        📋 Curriculum ({course.lessons} lessons)
+                        📋 Curriculum ({course.lessons.length} lessons)
                     </h2>
                     <div style={{ marginBottom: 24 }}>
-                        {LESSONS.map((lesson, i) => (
-                            <div
-                                key={i}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 14,
-                                    padding: "12px 0",
-                                    borderBottom: "1px solid #f0e8e0",
-                                }}
-                            >
-                                <div
+                        {course.lessons.length === 0 ? (
+                            <p style={{ fontSize: 14, color: "#999", fontStyle: "italic" }}>Lessons coming soon...</p>
+                        ) : (
+                            course.lessons.map((lesson: any, i: number) => (
+                                <Link
+                                    href={`/courses/${id}/lessons/${lesson.id}`}
+                                    key={lesson.id}
                                     style={{
-                                        width: 28,
-                                        height: 28,
-                                        borderRadius: "50%",
-                                        background: i < 2 ? "linear-gradient(135deg, #FFB38E, #FFDA6C)" : "#f0e8e0",
                                         display: "flex",
                                         alignItems: "center",
-                                        justifyContent: "center",
-                                        flexShrink: 0,
+                                        gap: 14,
+                                        padding: "12px 0",
+                                        borderBottom: "1px solid #f0e8e0",
+                                        textDecoration: "none",
+                                        color: "inherit"
                                     }}
                                 >
-                                    {i < 2 ? (
-                                        <Check size={14} color="#4B2B1F" />
-                                    ) : (
+                                    <div
+                                        style={{
+                                            width: 28,
+                                            height: 28,
+                                            borderRadius: "50%",
+                                            background: "#f0e8e0",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            flexShrink: 0,
+                                        }}
+                                    >
                                         <span style={{ fontSize: 11, fontWeight: 700, color: "#999" }}>{i + 1}</span>
-                                    )}
-                                </div>
-                                <span style={{ fontSize: 14, color: i < 2 ? "#4B2B1F" : "#666", fontWeight: i < 2 ? 700 : 400 }}>
-                                    {lesson}
-                                </span>
-                            </div>
-                        ))}
-                        <p style={{ fontSize: 13, color: "#FFB38E", marginTop: 10, fontWeight: 700 }}>
-                            +{course.lessons - LESSONS.length} more lessons…
-                        </p>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: 14, color: "#4B2B1F" }}>
+                                            {lesson.title}
+                                        </div>
+                                        {lesson.videoUrl && (
+                                            <div style={{ fontSize: 11, color: "#FFB38E", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                                                <Video size={10} /> Video Lesson
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div style={{ color: "#FFB38E" }}>
+                                        <PlayCircle size={20} />
+                                    </div>
+                                </Link>
+                            ))
+                        )}
                     </div>
 
                     <EnrollButton courseId={course.id} />

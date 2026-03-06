@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Plus, Trash2, Edit, BookOpen, Clock, Users } from "lucide-react";
 
 type Course = {
@@ -49,7 +50,7 @@ export default function AdminCoursesPage() {
             });
             if (res.ok) {
                 const added = await res.json();
-                setCourses((p) => [added, ...p]);
+                setCourses((prev) => [added, ...prev]);
                 setShowForm(false);
                 setForm({ title: "", instructor: "", lessons: 0, duration: "", level: "Beginner", description: "", featured: false });
             }
@@ -63,7 +64,7 @@ export default function AdminCoursesPage() {
         try {
             const res = await fetch(`/api/courses/${id}`, { method: "DELETE" });
             if (res.ok) {
-                setCourses((p) => p.filter((c) => c.id !== id));
+                setCourses((prev) => prev.filter((c: Course) => c.id !== id));
             }
         } catch (err) {
             console.error("Failed to delete course");
@@ -78,7 +79,7 @@ export default function AdminCoursesPage() {
                 body: JSON.stringify({ featured: !current })
             });
             if (res.ok) {
-                setCourses((p) => p.map((c) => c.id === id ? { ...c, featured: !current } : c));
+                setCourses((prev) => prev.map((c: Course) => c.id === id ? { ...c, featured: !current } : c));
             }
         } catch (err) {
             console.error("Failed to toggle featured status");
@@ -184,7 +185,7 @@ export default function AdminCoursesPage() {
                                 <tr><td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#888" }}>Loading courses...</td></tr>
                             ) : courses.length === 0 ? (
                                 <tr><td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#888" }}>No courses created yet.</td></tr>
-                            ) : courses.map((course, i) => (
+                            ) : courses.map((course: Course, i: number) => (
                                 <tr key={course.id} style={{ borderTop: "1px solid #f7f0ea", background: i % 2 === 0 ? "white" : "#FEFAF6" }}>
                                     <td style={{ padding: "14px 16px" }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -214,9 +215,14 @@ export default function AdminCoursesPage() {
                                         </label>
                                     </td>
                                     <td style={{ padding: "14px 16px" }}>
-                                        <button onClick={() => remove(course.id)} style={{ width: 32, height: 32, borderRadius: 8, border: "none", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                                            <Trash2 size={14} color="#dc2626" />
-                                        </button>
+                                        <div style={{ display: "flex", gap: 8 }}>
+                                            <Link href={`/admin/courses/${course.id}/lessons`} style={{ width: 32, height: 32, borderRadius: 8, background: "#FEFAF6", border: "1.5px solid #FFE0CC", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", textDecoration: "none" }}>
+                                                <BookOpen size={14} color="#FFB38E" />
+                                            </Link>
+                                            <button onClick={() => remove(course.id)} style={{ width: 32, height: 32, borderRadius: 8, border: "none", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                                                <Trash2 size={14} color="#dc2626" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

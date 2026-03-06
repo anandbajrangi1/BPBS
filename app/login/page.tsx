@@ -29,12 +29,17 @@ function LoginContent() {
                 redirect: false,
             });
 
-            if (result?.ok) {
-                router.push("/");
-            } else {
+            console.log("Login result:", result);
+
+            if (result?.error) {
                 setError("Invalid username or password");
+            } else if (result?.ok) {
+                router.push("/");
+                router.refresh();
+            } else {
+                setError("Something went wrong. Please try again.");
             }
-        } catch {
+        } catch (err) {
             setError("Network error. Please try again.");
         } finally {
             setLoading(false);
