@@ -1,27 +1,94 @@
 "use client";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 
-const weekly = [
-    { day: "Mon", rounds: 12 },
-    { day: "Tue", rounds: 16 },
-    { day: "Wed", rounds: 10 },
-    { day: "Thu", rounds: 16 },
-    { day: "Fri", rounds: 14 },
-    { day: "Sat", rounds: 16 },
-    { day: "Sun", rounds: 4 },
-];
-
-const monthly = [
-    { week: "W1", rounds: 98 },
-    { week: "W2", rounds: 112 },
-    { week: "W3", rounds: 88 },
-    { week: "W4", rounds: 105 },
-];
+type Session = {
+    id: string;
+    rounds: number;
+    duration: number;
+    date: string;
+};
 
 export default function ReportingPage() {
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [totalRounds, setTotalRounds] = useState(0);
+    const [todayRounds, setTodayRounds] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const res = await fetch("/api/japa");
+            if (res.ok) {
+                const data = await res.json();
+                setSessions(data.sessions || []);
+                setTotalRounds(data.totalRounds || 0);
+                setTodayRounds(data.todayRounds || 0);
+            }
+        } catch (err) {
+            console.error("Failed to fetch japa data");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Calculate weekly data (last 7 days including today)
+    const getWeeklyData = () => {
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const last7Days = Array.from({ length: 7 }).map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            return {
+                dateStr: d.toDateString(),
+                dayName: days[d.getDay()],
+                rounds: 0
+            };
+        });
+
+        // Populate rounds
+        sessions.forEach(s => {
+            const dateStr = new Date(s.date).toDateString();
+            const dayObj = last7Days.find(d => d.dateStr === dateStr);
+            if (dayObj) {
+                dayObj.rounds += s.rounds;
+            }
+        });
+
+        return last7Days.map(d => ({ day: d.dayName, rounds: d.rounds }));
+    };
+
+    // Calculate monthly data (group current month's sessions into 4 arbitrary weeks for visual)
+    const getMonthlyData = () => {
+        const w1 = { week: "W1", rounds: 0 };
+        const w2 = { week: "W2", rounds: 0 };
+        const w3 = { week: "W3", rounds: 0 };
+        const w4 = { week: "W4", rounds: 0 };
+
+        const currentMonth = new Date().getMonth();
+
+        sessions.forEach(s => {
+            const d = new Date(s.date);
+            if (d.getMonth() === currentMonth) {
+                const dateNum = d.getDate();
+                if (dateNum <= 7) w1.rounds += s.rounds;
+                else if (dateNum <= 14) w2.rounds += s.rounds;
+                else if (dateNum <= 21) w3.rounds += s.rounds;
+                else w4.rounds += s.rounds;
+            }
+        });
+
+        return [w1, w2, w3, w4];
+    };
+
+    const weekly = getWeeklyData();
+    const monthly = getMonthlyData();
     const totalThisWeek = weekly.reduce((a, b) => a + b.rounds, 0);
+    const uniqueDaysActive = new Set(sessions.map(s => new Date(s.date).toDateString())).size;
 
     return (
         <div className="app-container">
@@ -40,23 +107,22 @@ export default function ReportingPage() {
                     </p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                         {[
-                            { label: "Total Rounds (All Time)", value: "1,840", emoji: "📿" },
-                            { label: "This Week", value: totalThisWeek, emoji: "📅" },
-                            { label: "Daily Average", value: (totalThisWeek / 7).toFixed(1), emoji: "📈" },
-                            { label: "Days Active", value: "186", emoji: "🔥" },
+                            { label: "Total Rounds", value: totalRounds.toLocaleString(), emoji: "📿" },
+                            { label: "This Week", value: totalThisWeek.toLocaleString(), emoji: "📅" },
+                            { label: "Today", value: todayRounds.toLocaleString(), emoji: "📈" },
+                            { label: "Days Active", value: uniqueDaysActive.toString(), emoji: "🔥" },
                         ].map((s) => (
                             <div
                                 key={s.label}
                                 style={{
                                     background: "rgba(255,255,255,0.1)",
                                     borderRadius: 14,
-                                    padding: "14px 12px",
                                     backdropFilter: "blur(10px)",
                                 }}
                             >
                                 <div style={{ fontSize: 20, marginBottom: 4 }}>{s.emoji}</div>
                                 <div style={{ fontFamily: "'Crimson Text', serif", fontSize: 24, fontWeight: 700, color: "white" }}>
-                                    {s.value}
+                                    {isLoading ? "-" : s.value}
                                 </div>
                                 <div style={{ fontSize: 11, color: "rgba(255,230,200,0.7)" }}>{s.label}</div>
                             </div>
@@ -76,7 +142,7 @@ export default function ReportingPage() {
                         }}
                     >
                         <h3 style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, fontWeight: 600, color: "#2D1B10", marginBottom: 16 }}>
-                            📅 This Week
+                            📅 Last 7 Days
                         </h3>
                         <ResponsiveContainer width="100%" height={160}>
                             <BarChart data={weekly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -140,9 +206,7 @@ export default function ReportingPage() {
                             🎯 Monthly Goal
                         </h3>
                         {[
-                            { label: "Japa Rounds", done: 403, goal: 480, color: "#FFB38E" },
-                            { label: "Chanting Hours", done: 34, goal: 40, color: "#FFDA6C" },
-                            { label: "Days Active", done: 24, goal: 30, color: "#c8f5c8" },
+                            { label: "Japa Rounds", done: monthly.reduce((a, b) => a + b.rounds, 0), goal: 480, color: "#FFB38E" },
                         ].map((g) => (
                             <div key={g.label} style={{ marginBottom: 14 }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -152,7 +216,7 @@ export default function ReportingPage() {
                                 <div style={{ height: 8, background: "#f0e8e0", borderRadius: 4, overflow: "hidden" }}>
                                     <div
                                         style={{
-                                            width: `${(g.done / g.goal) * 100}%`,
+                                            width: `${Math.min((g.done / g.goal) * 100, 100)}%`,
                                             height: "100%",
                                             background: g.color,
                                             borderRadius: 4,
@@ -165,6 +229,7 @@ export default function ReportingPage() {
                 </div>
             </div>
             <BottomNav />
-        </div>
+        </div >
     );
 }
+
