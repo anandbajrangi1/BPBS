@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "./auth.config";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig,
@@ -14,47 +15,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
         Credentials({
-            name: "Phone OTP",
+            name: "Credentials",
             credentials: {
-                phone: { label: "Phone", type: "text" },
-                otp: { label: "OTP", type: "text" },
+                username: { label: "Username", type: "text" },
+                password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                const { phone, otp } = credentials as {
-                    phone: string;
-                    otp: string;
+                const { username, password } = credentials as {
+                    username: string;
+                    password: string;
                 };
 
-                if (!phone || !otp) return null;
+                if (!username || !password) return null;
 
-                const record = await prisma.otpToken.findFirst({
+                const user = await prisma.user.findFirst({
                     where: {
-                        phone,
-                        otp,
-                        used: false,
-                        expiresAt: { gt: new Date() },
-                    },
-                    orderBy: { createdAt: "desc" },
+                        OR: [
+                            { username: username },
+                            { email: username },
+                            { phone: username }
+                        ]
+                    }
                 });
 
-                if (!record) return null;
+                if (!user || !user.password) return null;
 
-                await prisma.otpToken.update({
-                    where: { id: record.id },
-                    data: { used: true },
-                });
+                const isPasswordValid = await bcrypt.compare(password, user.password);
 
-                let user = await prisma.user.findUnique({ where: { phone } });
-                if (!user) {
-                    user = await prisma.user.create({
-                        data: { phone, name: "Devotee" },
-                    });
-                }
+                if (!isPasswordValid) return null;
 
                 return {
                     id: user.id,
                     name: user.name,
                     email: user.email,
+                    username: user.username,
                     phone: user.phone,
                     role: user.role,
                 };
