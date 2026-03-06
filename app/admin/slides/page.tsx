@@ -1,22 +1,66 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, GripVertical, Trash2, Link } from "lucide-react";
-import slidesData from "@/data/slides.json";
+
+type Slide = {
+    id: string;
+    title: string;
+    subtitle: string | null;
+    link: string | null;
+    color: string;
+    order: number;
+};
 
 export default function AdminSlidesPage() {
-    const [slides, setSlides] = useState(slidesData);
+    const [slides, setSlides] = useState<Slide[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState({ title: "", subtitle: "", link: "", color: "#FFB38E" });
+    const [isLoading, setIsLoading] = useState(true);
 
-    const addSlide = () => {
-        if (!form.title) return;
-        const newSlide = { id: String(slides.length + 1), image: "", ...form };
-        setSlides((p) => [...p, newSlide] as typeof slidesData);
-        setForm({ title: "", subtitle: "", link: "", color: "#FFB38E" });
-        setShowForm(false);
+    useEffect(() => {
+        fetchSlides();
+    }, []);
+
+    const fetchSlides = async () => {
+        try {
+            const res = await fetch("/api/slides");
+            if (res.ok) setSlides(await res.json());
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const remove = (id: string) => setSlides((p) => p.filter((s) => s.id !== id));
+    const addSlide = async () => {
+        if (!form.title) return;
+        try {
+            const res = await fetch("/api/slides", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...form, order: slides.length }),
+            });
+            if (res.ok) {
+                const newSlide = await res.json();
+                setSlides((p) => [...p, newSlide]);
+                setForm({ title: "", subtitle: "", link: "", color: "#FFB38E" });
+                setShowForm(false);
+            }
+        } catch (err) {
+            console.error("Failed to add slide");
+        }
+    };
+
+    const remove = async (id: string) => {
+        try {
+            const res = await fetch(`/api/slides/${id}`, { method: "DELETE" });
+            if (res.ok) {
+                setSlides((p) => p.filter((s) => s.id !== id));
+            }
+        } catch (err) {
+            console.error("Failed to delete slide");
+        }
+    };
 
     return (
         <div>

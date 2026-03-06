@@ -1,11 +1,22 @@
 import { Users, CalendarDays, HeartHandshake, TrendingUp } from "lucide-react";
-import users from "@/data/users.json";
-import events from "@/data/events.json";
-import donations from "@/data/donations.json";
+import { prisma } from "@/lib/prisma";
 
-const totalDonations = (donations as any[]).reduce((a, b) => a + b.amount, 0);
+export default async function AdminDashboard() {
+    const users = await prisma.user.findMany({
+        orderBy: { createdAt: "desc" }
+    });
 
-export default function AdminDashboard() {
+    const events = await prisma.event.findMany({
+        where: { date: { gte: new Date() } }
+    });
+
+    const donations = await prisma.donation.findMany({
+        where: { status: "SUCCESS" },
+        include: { user: true },
+        orderBy: { createdAt: "desc" }
+    });
+
+    const totalDonations = donations.reduce((acc: number, d: any) => acc + d.amount, 0);
     return (
         <div>
             {/* Top bar */}
@@ -51,10 +62,10 @@ export default function AdminDashboard() {
                 {/* Stats grid */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 28 }}>
                     {[
-                        { icon: Users, label: "Total Users", value: users.length, sub: "+2 this week", color: "#FFB38E" },
-                        { icon: CalendarDays, label: "Events", value: events.length, sub: "3 upcoming", color: "#FFDA6C" },
-                        { icon: HeartHandshake, label: "Donations", value: `₹${totalDonations.toLocaleString()}`, sub: "This month", color: "#c8f5c8" },
-                        { icon: TrendingUp, label: "Active Users", value: users.filter((u) => u.status === "active").length, sub: "Daily active", color: "#FFE0CC" },
+                        { icon: Users, label: "Total Users", value: users.length, sub: "Registered", color: "#FFB38E" },
+                        { icon: CalendarDays, label: "Events", value: events.length, sub: "Upcoming", color: "#FFDA6C" },
+                        { icon: HeartHandshake, label: "Donations", value: `₹${(totalDonations / 100).toLocaleString()}`, sub: "Total", color: "#c8f5c8" },
+                        { icon: TrendingUp, label: "Active Users", value: users.filter((u: any) => u.status === "ACTIVE").length, sub: "Currently active", color: "#FFE0CC" },
                     ].map((stat) => (
                         <div
                             key={stat.label}
@@ -102,7 +113,7 @@ export default function AdminDashboard() {
                         <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10", marginBottom: 16 }}>
                             Recent Users
                         </h2>
-                        {users.slice(0, 5).map((user) => (
+                        {users.slice(0, 5).map((user: any) => (
                             <div
                                 key={user.id}
                                 style={{
@@ -129,8 +140,8 @@ export default function AdminDashboard() {
                                     🙏
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: 14, fontWeight: 700, color: "#2D1B10" }}>{user.name}</div>
-                                    <div style={{ fontSize: 11, color: "#999" }}>{user.email}</div>
+                                    <div style={{ fontSize: 14, fontWeight: 700, color: "#2D1B10" }}>{user.name || "Devotee"}</div>
+                                    <div style={{ fontSize: 11, color: "#999" }}>{user.phone}</div>
                                 </div>
                                 <div
                                     style={{
@@ -138,11 +149,11 @@ export default function AdminDashboard() {
                                         fontWeight: 700,
                                         padding: "3px 8px",
                                         borderRadius: 999,
-                                        background: user.status === "active" ? "#c8f5c8" : "#f0f0f0",
-                                        color: user.status === "active" ? "#2a7a2a" : "#888",
+                                        background: user.status === "ACTIVE" ? "#c8f5c8" : "#f0f0f0",
+                                        color: user.status === "ACTIVE" ? "#2a7a2a" : "#888",
                                     }}
                                 >
-                                    {user.status}
+                                    {user.status === "ACTIVE" ? "active" : "blocked"}
                                 </div>
                             </div>
                         ))}
@@ -160,7 +171,7 @@ export default function AdminDashboard() {
                         <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10", marginBottom: 16 }}>
                             Recent Donations
                         </h2>
-                        {(donations as any[]).slice(0, 5).map((d) => (
+                        {donations.slice(0, 5).map((d: any) => (
                             <div
                                 key={d.id}
                                 style={{
@@ -187,11 +198,11 @@ export default function AdminDashboard() {
                                     🪔
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: 14, fontWeight: 700, color: "#2D1B10" }}>{d.user}</div>
+                                    <div style={{ fontSize: 14, fontWeight: 700, color: "#2D1B10" }}>{d.user.name || "Devotee"}</div>
                                     <div style={{ fontSize: 11, color: "#999" }}>{d.purpose}</div>
                                 </div>
                                 <div style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, fontWeight: 700, color: "#FFB38E" }}>
-                                    ₹{d.amount.toLocaleString()}
+                                    ₹{(d.amount / 100).toLocaleString()}
                                 </div>
                             </div>
                         ))}
