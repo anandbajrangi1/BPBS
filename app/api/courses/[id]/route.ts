@@ -5,7 +5,10 @@ import { auth } from "@/auth";
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
-        const course = await prisma.course.findUnique({ where: { id } });
+        const course = await prisma.course.findUnique({
+            where: { id },
+            include: { lessons: true }
+        });
         if (!course) return NextResponse.json({ error: "Not found" }, { status: 404 });
         return NextResponse.json(course);
     } catch {
@@ -18,8 +21,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!session || (session.user as any).role !== "ADMIN")
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const { id } = await params;
-    const body = await req.json();
-    const course = await prisma.course.update({ where: { id }, data: body });
+    const { lessons, ...data } = await req.json();
+    const course = await prisma.course.update({ where: { id }, data });
     return NextResponse.json(course);
 }
 

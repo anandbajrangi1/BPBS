@@ -7,7 +7,7 @@ type Course = {
     id: string;
     title: string;
     instructor: string;
-    lessons: number;
+    lessons: any[];
     duration: string;
     level: string;
     enrolled: number;
@@ -21,7 +21,7 @@ export default function AdminCoursesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState({
-        title: "", instructor: "", lessons: 0, duration: "",
+        title: "", instructor: "", duration: "",
         level: "Beginner", description: "", featured: false
     });
 
@@ -46,13 +46,13 @@ export default function AdminCoursesPage() {
             const res = await fetch("/api/courses", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...form, lessons: Number(form.lessons) })
+                body: JSON.stringify(form)
             });
             if (res.ok) {
                 const added = await res.json();
                 setCourses((prev) => [added, ...prev]);
                 setShowForm(false);
-                setForm({ title: "", instructor: "", lessons: 0, duration: "", level: "Beginner", description: "", featured: false });
+                setForm({ title: "", instructor: "", duration: "", level: "Beginner", description: "", featured: false });
             }
         } catch (err) {
             console.error("Failed to add course");
@@ -131,10 +131,6 @@ export default function AdminCoursesPage() {
                                 <input required value={form.instructor} onChange={(e) => setForm({ ...form, instructor: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #FFE0CC", fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }} />
                             </div>
                             <div>
-                                <label style={{ fontSize: 11, fontWeight: 700, color: "#888", marginBottom: 6, display: "block" }}>LESSON COUNT</label>
-                                <input required type="number" min="0" value={form.lessons} onChange={(e) => setForm({ ...form, lessons: parseInt(e.target.value) || 0 })} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #FFE0CC", fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }} />
-                            </div>
-                            <div>
                                 <label style={{ fontSize: 11, fontWeight: 700, color: "#888", marginBottom: 6, display: "block" }}>TOTAL DURATION (e.g. 5h 30m)</label>
                                 <input required value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #FFE0CC", fontFamily: "'Nunito', sans-serif", outline: "none", boxSizing: "border-box" }} />
                             </div>
@@ -201,7 +197,7 @@ export default function AdminCoursesPage() {
                                     <td style={{ padding: "14px 16px", fontSize: 13, color: "#555", fontWeight: 600 }}>{course.instructor}</td>
                                     <td style={{ padding: "14px 16px" }}>
                                         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#888" }}><BookOpen size={12} /> {course.lessons} lessons</div>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#888" }}><BookOpen size={12} /> {course.lessons.length} lessons</div>
                                             <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#888" }}><Clock size={12} /> {course.duration}</div>
                                         </div>
                                     </td>

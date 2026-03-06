@@ -13,9 +13,10 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default async function CoursesPage() {
-    const courses = await prisma.course.findMany({
+    const courses = (await prisma.course.findMany({
+        include: { lessons: true },
         orderBy: { createdAt: 'desc' }
-    });
+    })) as any[];
 
     return (
         <div className="app-container">
@@ -110,7 +111,7 @@ export default async function CoursesPage() {
                                         <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                                 <BookOpen size={13} color="#FFB38E" />
-                                                <span style={{ fontSize: 12, color: "#666" }}>{course.lessons} lessons</span>
+                                                <span style={{ fontSize: 12, color: "#666" }}>{course.lessons?.length || 0} lessons</span>
                                             </div>
                                             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                                 <Clock size={13} color="#FFB38E" />

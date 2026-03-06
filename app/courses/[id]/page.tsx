@@ -61,7 +61,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                     </p>
                     <div style={{ display: "flex", gap: 20 }}>
                         {[
-                            { icon: BookOpen, val: `${course.lessons} lessons` },
+                            { icon: BookOpen, val: `${course.lessons.length} lessons` },
                             { icon: Clock, val: course.duration },
                             { icon: Users, val: `${course.enrolled} enrolled` },
                         ].map(({ icon: Icon, val }) => (
