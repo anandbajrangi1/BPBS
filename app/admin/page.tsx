@@ -16,6 +16,9 @@ export default async function AdminDashboard() {
         orderBy: { createdAt: "desc" }
     });
 
+    const courseCount = await prisma.course.count();
+    const kirtanCount = await prisma.kirtan.count();
+
     const totalDonations = donations.reduce((acc: number, d: any) => acc + d.amount, 0);
     return (
         <div>
@@ -63,9 +66,9 @@ export default async function AdminDashboard() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 28 }}>
                     {[
                         { icon: Users, label: "Total Users", value: users.length, sub: "Registered", color: "#FFB38E" },
-                        { icon: CalendarDays, label: "Events", value: events.length, sub: "Upcoming", color: "#FFDA6C" },
-                        { icon: HeartHandshake, label: "Donations", value: `₹${(totalDonations / 100).toLocaleString()}`, sub: "Total", color: "#c8f5c8" },
-                        { icon: TrendingUp, label: "Active Users", value: users.filter((u: any) => u.status === "ACTIVE").length, sub: "Currently active", color: "#FFE0CC" },
+                        { icon: CalendarDays, label: "Courses", value: courseCount, sub: "Published", color: "#FFDA6C" },
+                        { icon: HeartHandshake, label: "Donations", value: `₹${(totalDonations / 100).toLocaleString()}`, sub: "Total Received", color: "#c8f5c8" },
+                        { icon: TrendingUp, label: "Kirtans", value: kirtanCount, sub: "Audio Tracks", color: "#FFE0CC" },
                     ].map((stat) => (
                         <div
                             key={stat.label}
@@ -216,10 +219,10 @@ export default async function AdminDashboard() {
                     </h2>
                     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                         {[
-                            { href: "/admin/events", label: "➕ Create Event" },
-                            { href: "/admin/content", label: "📤 Upload Content" },
+                            { href: "/admin/events", label: "📅 Manage Events" },
+                            { href: "/admin/courses", label: "📚 Create Course" },
+                            { href: "/admin/kirtans", label: "🎵 Add Kirtan" },
                             { href: "/admin/slides", label: "🖼️ Manage Slides" },
-                            { href: "/admin/donations", label: "📊 Donation Report" },
                         ].map((a) => (
                             <a
                                 key={a.href}

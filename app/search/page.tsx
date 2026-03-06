@@ -3,11 +3,14 @@ import SearchClient from "./SearchClient";
 
 export default async function SearchPage() {
     // Fetch all searchable data from database
-    const [kirtans, courses, events] = await Promise.all([
+    const [kirtans, courses, events, seva] = await Promise.all([
         prisma.kirtan.findMany({ select: { id: true, title: true, artist: true } }),
         prisma.course.findMany({ select: { id: true, title: true, instructor: true } }),
         prisma.event.findMany({
             where: { date: { gte: new Date() } },
+            select: { id: true, title: true, location: true }
+        }),
+        prisma.sevaOpportunity.findMany({
             select: { id: true, title: true, location: true }
         }),
     ]);
@@ -18,6 +21,7 @@ export default async function SearchPage() {
                 kirtans,
                 courses,
                 events,
+                seva,
             }}
         />
     );

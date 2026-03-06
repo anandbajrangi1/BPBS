@@ -8,6 +8,9 @@ import {
     Image,
     HeartHandshake,
     FileVideo,
+    BookOpen,
+    Music,
+    Heart,
     ChevronRight,
     LogOut,
 } from "lucide-react";
@@ -16,7 +19,9 @@ const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/events", icon: CalendarDays, label: "Events" },
-    { href: "/admin/content", icon: FileVideo, label: "Content" },
+    { href: "/admin/seva", icon: Heart, label: "Seva" },
+    { href: "/admin/courses", icon: BookOpen, label: "Courses" },
+    { href: "/admin/kirtans", icon: Music, label: "Kirtans" },
     { href: "/admin/slides", icon: Image, label: "Slides" },
     { href: "/admin/donations", icon: HeartHandshake, label: "Donations" },
 ];

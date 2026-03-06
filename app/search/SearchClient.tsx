@@ -14,6 +14,7 @@ export default function SearchClient({
         kirtans: any[];
         courses: any[];
         events: any[];
+        seva: any[];
     }
 }) {
     const [query, setQuery] = useState("");
@@ -24,10 +25,11 @@ export default function SearchClient({
             ...searchData.kirtans.filter((k) => k.title.toLowerCase().includes(query.toLowerCase())).map((k) => ({ id: k.id, title: k.title, type: "Kirtan", sub: k.artist, url: `/kirtan` })),
             ...searchData.courses.filter((c) => c.title.toLowerCase().includes(query.toLowerCase())).map((c) => ({ id: c.id, title: c.title, type: "Course", sub: c.instructor, url: `/courses/${c.id}` })),
             ...searchData.events.filter((e) => e.title.toLowerCase().includes(query.toLowerCase())).map((e) => ({ id: e.id, title: e.title, type: "Event", sub: e.location, url: `/events/${e.id}` })),
+            ...searchData.seva.filter((s) => s.title.toLowerCase().includes(query.toLowerCase())).map((s) => ({ id: s.id, title: s.title, type: "Seva", sub: s.location, url: `/seva` })),
         ];
 
-    const TYPE_EMOJI: Record<string, string> = { Kirtan: "🎵", Course: "📚", Event: "📅" };
-    const TYPE_COLOR: Record<string, string> = { Kirtan: "#FFB38E", Course: "#FFDA6C", Event: "#c8f5c8" };
+    const TYPE_EMOJI: Record<string, string> = { Kirtan: "🎵", Course: "📚", Event: "📅", Seva: "❤️" };
+    const TYPE_COLOR: Record<string, string> = { Kirtan: "#FFB38E", Course: "#FFDA6C", Event: "#c8f5c8", Seva: "#FFE0CC" };
 
     return (
         <div className="app-container">
@@ -52,7 +54,7 @@ export default function SearchClient({
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search kirtans, courses, events…"
+                            placeholder="Search kirtans, courses, events, seva…"
                             style={{
                                 flex: 1,
                                 border: "none",
@@ -75,7 +77,8 @@ export default function SearchClient({
                                 { label: "Kirtans & Bhajans", emoji: "🎵", color: "#FFB38E", href: "/kirtan" },
                                 { label: "Courses", emoji: "📚", color: "#FFDA6C", href: "/courses" },
                                 { label: "Events", emoji: "📅", color: "#c8f5c8", href: "/events" },
-                                { label: "Japa", emoji: "📿", color: "#FFE0CC", href: "/japa" },
+                                { label: "Volunteer Seva", emoji: "❤️", color: "#FFE0CC", href: "/seva" },
+                                { label: "Japa Chanting", emoji: "📿", color: "#FFF3EC", href: "/japa" },
                             ].map((cat) => (
                                 <Link key={cat.label} href={cat.href} style={{ textDecoration: "none" }}>
                                     <div

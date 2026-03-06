@@ -3,6 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import { BookOpen, Clock, Star, Users, Check } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import EnrollButton from "@/components/EnrollButton";
 
 const LESSONS = [
     "Introduction & Paramparā",
@@ -133,12 +134,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                         </p>
                     </div>
 
-                    <button
-                        className="btn-primary"
-                        style={{ width: "100%", padding: 15, fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                        📚 Start Course — Free
-                    </button>
+                    <EnrollButton courseId={course.id} />
                 </div>
             </div>
             <BottomNav />

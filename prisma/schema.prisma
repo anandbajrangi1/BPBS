@@ -39,11 +39,14 @@ model User {
   updatedAt     DateTime      @updatedAt
   donations     Donation[]
   japaSessions  JapaSession[]
+  enrollments   CourseEnrollment[]
+  notifications Notification[]
   accounts      Account[]
   sessions      Session[]
 }
 
 // NextAuth required models
+// ... (omitting for brevity in this tool call replaced sections)
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -117,18 +120,52 @@ model Course {
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  enrollments CourseEnrollment[]
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
 }
 
 model Kirtan {
-  id       String  @id @default(cuid())
-  title    String
-  artist   String
-  duration String
-  type     String  @default("kirtan") // kirtan | bhajan | stotra
-  category String?
-  plays    Int     @default(0)
-  url      String? // S3/CDN URL
-  featured Boolean @default(false)
+  id        String   @id @default(cuid())
+  title     String
+  artist    String
+  duration  String
+  type      String   @default("kirtan") // kirtan | bhajan | stotra
+  category  String?
+  plays     Int      @default(0)
+  url       String? // S3/CDN URL
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SevaOpportunity {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  date        String
+  location    String
+  emoji       String   @default("🙏")
+  color       String   @default("#FFB38E")
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   @default("info")
+  seen      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 

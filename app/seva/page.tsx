@@ -1,48 +1,35 @@
+"use client";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
-import Link from "next/link";
-import { Heart, HandHeart, Calendar, BookOpen } from "lucide-react";
 
-const sevaOpportunities = [
-    {
-        id: "1",
-        title: "Kitchen Seva",
-        description: "Help prepare prasad for devotees",
-        date: "Every Sunday",
-        location: "BPBS Temple Kitchen",
-        emoji: "🍚",
-        color: "#FFB38E",
-    },
-    {
-        id: "2",
-        title: "Greeting Devotees",
-        description: "Welcome guests at temple entrance",
-        date: "Weekends",
-        location: "BPBS Temple Entrance",
-        emoji: "🙏",
-        color: "#FFDA6C",
-    },
-    {
-        id: "3",
-        title: "Book Distribution",
-        description: "Distribute Srila Prabhupada books",
-        date: "Flexible",
-        location: "City Center",
-        emoji: "📚",
-        color: "#c8f5c8",
-    },
-    {
-        id: "4",
-        title: "Temple Cleaning",
-        description: "Help clean and decorate the temple",
-        date: "Every Saturday",
-        location: "BPBS Temple",
-        emoji: "🌺",
-        color: "#FFE0CC",
-    },
-];
+type Seva = {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    location: string;
+    emoji: string;
+    color: string;
+};
 
 export default function SevaPage() {
+    const [sevas, setSevas] = useState<Seva[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetch("/api/seva")
+            .then(res => res.json())
+            .then(data => {
+                setSevas(data);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setIsLoading(false);
+            });
+    }, []);
+
     return (
         <div className="app-container">
             <Header title="Volunteer Seva" showBack={false} />
@@ -65,7 +52,11 @@ export default function SevaPage() {
                 </div>
 
                 <div style={{ padding: "20px 16px" }}>
-                    {sevaOpportunities.map((seva) => (
+                    {isLoading ? (
+                        <p style={{ textAlign: "center", color: "#888", padding: 40 }}>Loading opportunities...</p>
+                    ) : sevas.length === 0 ? (
+                        <p style={{ textAlign: "center", color: "#888", padding: 40 }}>No seva opportunities currently available.</p>
+                    ) : sevas.map((seva) => (
                         <div
                             key={seva.id}
                             style={{

@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SignOutButton from "./SignOutButton";
+import Link from "next/link";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -14,7 +15,7 @@ export default async function ProfilePage() {
     const userId = session.user.id;
 
     // Fetch aggregated data
-    const [user, japaData, donationData] = await Promise.all([
+    const [user, japaData, donationData, enrollmentCount] = await Promise.all([
         prisma.user.findUnique({ where: { id: userId } }),
         prisma.japaSession.aggregate({
             where: { userId },
@@ -23,6 +24,9 @@ export default async function ProfilePage() {
         prisma.donation.aggregate({
             where: { userId, status: "SUCCESS" },
             _sum: { amount: true }
+        }),
+        prisma.courseEnrollment.count({
+            where: { userId }
         })
     ]);
 
@@ -88,8 +92,8 @@ export default async function ProfilePage() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                         {[
                             { label: "Japa Rounds", value: totalJapa, emoji: "📿" },
-                            { label: "Donation (₹)", value: totalDonation.toLocaleString(), emoji: "🪔" },
-                            { label: "Courses", value: 0, emoji: "📚" },
+                            { label: "Donation (₹)", value: (totalDonation / 100).toLocaleString(), emoji: "🪔" },
+                            { label: "Courses", value: enrollmentCount, emoji: "📚" },
                         ].map((s) => (
                             <div
                                 key={s.label}
@@ -155,14 +159,15 @@ export default async function ProfilePage() {
                 {/* Menu items */}
                 <div style={{ padding: "16px 16px" }}>
                     {[
-                        { emoji: "📅", label: "My Donations", sub: "View donation history" },
-                        { emoji: "📚", label: "Saved Courses", sub: "Continue learning" },
-                        { emoji: "🔔", label: "Notifications", sub: "Manage alerts" },
-                        { emoji: "🔒", label: "Privacy & Security", sub: "Account settings" },
-                        { emoji: "📞", label: "Help & Support", sub: "Contact us" },
+                        { emoji: "📅", label: "My Donations", sub: "View donation history", href: "/profile/donations" },
+                        { emoji: "📚", label: "Saved Courses", sub: "Continue learning", href: "/profile/courses" },
+                        { emoji: "🔔", label: "Notifications", sub: "Manage alerts", href: "#" },
+                        { emoji: "🔒", label: "Privacy & Security", sub: "Account settings", href: "#" },
+                        { emoji: "📞", label: "Help & Support", sub: "Contact us", href: "#" },
                     ].map((item) => (
-                        <div
+                        <Link
                             key={item.label}
+                            href={item.href}
                             style={{
                                 background: "white",
                                 borderRadius: 14,
@@ -173,6 +178,7 @@ export default async function ProfilePage() {
                                 gap: 14,
                                 boxShadow: "0 2px 10px rgba(75,43,31,0.05)",
                                 cursor: "pointer",
+                                textDecoration: "none"
                             }}
                         >
                             <span style={{ fontSize: 24 }}>{item.emoji}</span>
@@ -181,7 +187,7 @@ export default async function ProfilePage() {
                                 <div style={{ fontSize: 12, color: "#999" }}>{item.sub}</div>
                             </div>
                             <span style={{ color: "#ccc", fontSize: 20 }}>›</span>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
