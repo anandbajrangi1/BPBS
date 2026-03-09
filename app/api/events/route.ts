@@ -15,9 +15,9 @@ export async function GET(req: NextRequest) {
         });
 
         // Map _count.rsvps to attendees for compatibility with existing UI
-        const mappedEvents = events.map(e => ({
+        const mappedEvents = (events as any[]).map((e: any) => ({
             ...e,
-            attendees: e._count.rsvps
+            attendees: e._count?.rsvps || 0
         }));
 
         return NextResponse.json(mappedEvents);
