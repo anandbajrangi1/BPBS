@@ -4,11 +4,26 @@ import { auth } from "@/auth";
 
 export async function GET() {
     try {
-        const seva = await prisma.sevaOpportunity.findMany({
+        const sevas = await prisma.sevaOpportunity.findMany({
+            include: {
+                volunteers: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                phone: true,
+                                username: true
+                            }
+                        }
+                    }
+                }
+            },
             orderBy: { createdAt: "desc" }
         });
-        return NextResponse.json(seva);
-    } catch {
+        return NextResponse.json(sevas);
+    } catch (err) {
         return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
 }

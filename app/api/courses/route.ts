@@ -5,7 +5,22 @@ import { auth } from "@/auth";
 export async function GET() {
     try {
         const courses = await prisma.course.findMany({
-            include: { lessons: true },
+            include: {
+                lessons: true,
+                enrollments: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                phone: true,
+                                username: true
+                            }
+                        }
+                    }
+                }
+            },
             orderBy: { createdAt: "desc" }
         });
         return NextResponse.json(courses);

@@ -44,6 +44,7 @@ model User {
   enrollments   CourseEnrollment[]
   notifications Notification[]
   lessonProgress LessonProgress[]
+  sevaVolunteering SevaVolunteer[]
   accounts      Account[]
   sessions      Session[]
 }
@@ -144,8 +145,8 @@ model CourseEnrollment {
   id        String   @id @default(cuid())
   userId    String
   courseId  String
-  user      User     @relation(fields: [userId], references: [id])
-  course    Course   @relation(fields: [courseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([userId, courseId])
@@ -185,6 +186,18 @@ model SevaOpportunity {
   emoji       String   @default("🙏")
   color       String   @default("#FFB38E")
   createdAt   DateTime @default(now())
+  volunteers  SevaVolunteer[]
+}
+
+model SevaVolunteer {
+  id                String          @id @default(cuid())
+  userId            String
+  sevaOpportunityId String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sevaOpportunity   SevaOpportunity @relation(fields: [sevaOpportunityId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+
+  @@unique([userId, sevaOpportunityId])
 }
 
 model Notification {

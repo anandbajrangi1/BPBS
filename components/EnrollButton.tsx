@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function EnrollButton({ courseId }: { courseId: string }) {
     const [enrolled, setEnrolled] = useState(false);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         fetch(`/api/courses/enroll?courseId=${courseId}`)
@@ -40,7 +42,7 @@ export default function EnrollButton({ courseId }: { courseId: string }) {
 
     return (
         <button
-            onClick={!enrolled ? handleEnroll : undefined}
+            onClick={() => enrolled ? router.push("/profile/courses") : handleEnroll()}
             className="btn-primary"
             style={{
                 width: "100%",
@@ -52,7 +54,7 @@ export default function EnrollButton({ courseId }: { courseId: string }) {
                 background: enrolled ? "#F0E8E0" : undefined,
                 color: enrolled ? "#666" : undefined,
                 border: enrolled ? "1.5px solid #F0E8E0" : undefined,
-                cursor: enrolled ? "default" : "pointer",
+                cursor: "pointer",
             }}
         >
             {enrolled ? "✅ Enrolled — Continue Learning" : "📚 Start Course — Free"}
