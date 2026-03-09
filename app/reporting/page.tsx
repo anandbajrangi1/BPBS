@@ -1,235 +1,172 @@
 "use client";
-import { useState, useEffect } from "react";
-import Header from "@/components/Header";
+import { useState } from "react";
 import BottomNav from "@/components/BottomNav";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
-
-type Session = {
-    id: string;
-    rounds: number;
-    duration: number;
-    date: string;
-};
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ReportingPage() {
-    const [sessions, setSessions] = useState<Session[]>([]);
-    const [totalRounds, setTotalRounds] = useState(0);
-    const [todayRounds, setTodayRounds] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const [form, setForm] = useState({
+        sleepTime: "",
+        wakeUpTime: "",
+        rounds: "",
+        readingHours: "",
+        hearingHours: "",
+        remarks: "",
+    });
 
-    const fetchData = async () => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async () => {
+        if (!form.rounds) {
+            alert("Please enter the number of rounds at minimum.");
+            return;
+        }
+
+        setIsLoading(true);
         try {
-            const res = await fetch("/api/japa");
+            const res = await fetch("/api/sadhna", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(form)
+            });
+
             if (res.ok) {
+                alert("Thank you! Your Sadhna report has been sent securely.");
+                setForm({ sleepTime: "", wakeUpTime: "", rounds: "", readingHours: "", hearingHours: "", remarks: "" });
+            } else {
                 const data = await res.json();
-                setSessions(data.sessions || []);
-                setTotalRounds(data.totalRounds || 0);
-                setTodayRounds(data.todayRounds || 0);
+                alert(data.error || "Failed to submit report. Please try again.");
             }
         } catch (err) {
-            console.error("Failed to fetch japa data");
+            alert("An error occurred. Please check your connection.");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Calculate weekly data (last 7 days including today)
-    const getWeeklyData = () => {
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const last7Days = Array.from({ length: 7 }).map((_, i) => {
-            const d = new Date();
-            d.setDate(d.getDate() - (6 - i));
-            return {
-                dateStr: d.toDateString(),
-                dayName: days[d.getDay()],
-                rounds: 0
-            };
-        });
-
-        // Populate rounds
-        sessions.forEach(s => {
-            const dateStr = new Date(s.date).toDateString();
-            const dayObj = last7Days.find(d => d.dateStr === dateStr);
-            if (dayObj) {
-                dayObj.rounds += s.rounds;
-            }
-        });
-
-        return last7Days.map(d => ({ day: d.dayName, rounds: d.rounds }));
-    };
-
-    // Calculate monthly data (group current month's sessions into 4 arbitrary weeks for visual)
-    const getMonthlyData = () => {
-        const w1 = { week: "W1", rounds: 0 };
-        const w2 = { week: "W2", rounds: 0 };
-        const w3 = { week: "W3", rounds: 0 };
-        const w4 = { week: "W4", rounds: 0 };
-
-        const currentMonth = new Date().getMonth();
-
-        sessions.forEach(s => {
-            const d = new Date(s.date);
-            if (d.getMonth() === currentMonth) {
-                const dateNum = d.getDate();
-                if (dateNum <= 7) w1.rounds += s.rounds;
-                else if (dateNum <= 14) w2.rounds += s.rounds;
-                else if (dateNum <= 21) w3.rounds += s.rounds;
-                else w4.rounds += s.rounds;
-            }
-        });
-
-        return [w1, w2, w3, w4];
-    };
-
-    const weekly = getWeeklyData();
-    const monthly = getMonthlyData();
-    const totalThisWeek = weekly.reduce((a, b) => a + b.rounds, 0);
-    const uniqueDaysActive = new Set(sessions.map(s => new Date(s.date).toDateString())).size;
-
     return (
-        <div className="app-container">
-            <Header title="My Sadhana Report" showBack={false} />
-            <div className="pb-nav" style={{ overflowY: "auto" }}>
-
-                {/* Summary stats */}
-                <div
+        <div className="app-container" style={{ background: "white" }}>
+            {/* Header Area */}
+            <div style={{
+                background: "#FCE588", // Inspired by the mockup
+                padding: "20px 20px",
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                position: "sticky",
+                top: 0,
+                zIndex: 50,
+            }}>
+                <button
+                    onClick={() => router.back()}
                     style={{
-                        background: "linear-gradient(135deg, #4B2B1F, #7B452F)",
-                        padding: "20px 20px 28px",
+                        background: "#3A1B12", // dark brown arrow box
+                        border: "none",
+                        borderRadius: 8,
+                        width: 44,
+                        height: 44,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        flexShrink: 0
                     }}
                 >
-                    <p style={{ color: "#FFDA6C", fontSize: 11, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-                        📊 YOUR PROGRESS
-                    </p>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        {[
-                            { label: "Total Rounds", value: totalRounds.toLocaleString(), emoji: "📿" },
-                            { label: "This Week", value: totalThisWeek.toLocaleString(), emoji: "📅" },
-                            { label: "Today", value: todayRounds.toLocaleString(), emoji: "📈" },
-                            { label: "Days Active", value: uniqueDaysActive.toString(), emoji: "🔥" },
-                        ].map((s) => (
-                            <div
-                                key={s.label}
+                    <ArrowLeft size={24} color="white" />
+                </button>
+                <h1 style={{
+                    fontFamily: "'Crimson Text', serif",
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "#000",
+                    margin: 0,
+                }}>
+                    Report Your Today's Sadhna
+                </h1>
+            </div>
+
+            {/* Scrollable form view */}
+            <div className="pb-nav" style={{ overflowY: "auto", padding: "20px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 80 }}>
+
+                    {[
+                        { label: "Yesterday's Sleep", name: "sleepTime", type: "text", placeholder: "e.g., 10:00 PM" },
+                        { label: "Wake Up Time", name: "wakeUpTime", type: "time", placeholder: "04:00 AM" },
+                        { label: "No. Of Rounds", name: "rounds", type: "number", placeholder: "16" },
+                        { label: "Reading (In Hours)", name: "readingHours", type: "number", placeholder: "1" },
+                        { label: "Hearing (In Hours)", name: "hearingHours", type: "number", placeholder: "0.5" },
+                        { label: "Remarks (Optional)", name: "remarks", type: "text", placeholder: "..." },
+                    ].map((field) => (
+                        <div key={field.name} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <label style={{
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: "#000",
+                                paddingLeft: 8
+                            }}>
+                                {field.label}
+                            </label>
+                            <input
+                                type={field.type}
+                                name={field.name}
+                                value={(form as any)[field.name]}
+                                onChange={handleChange}
+                                placeholder={field.placeholder}
                                 style={{
-                                    background: "rgba(255,255,255,0.1)",
-                                    borderRadius: 14,
-                                    backdropFilter: "blur(10px)",
+                                    background: "#FFF4CC", // Off-yellow input color
+                                    border: "none",
+                                    borderRadius: 12,
+                                    padding: "16px 16px",
+                                    fontSize: 15,
+                                    outline: "none",
+                                    fontFamily: "'Nunito', sans-serif",
+                                    color: "#333"
                                 }}
-                            >
-                                <div style={{ fontSize: 20, marginBottom: 4 }}>{s.emoji}</div>
-                                <div style={{ fontFamily: "'Crimson Text', serif", fontSize: 24, fontWeight: 700, color: "white" }}>
-                                    {isLoading ? "-" : s.value}
-                                </div>
-                                <div style={{ fontSize: 11, color: "rgba(255,230,200,0.7)" }}>{s.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Weekly chart */}
-                <div style={{ padding: "20px 16px 0" }}>
-                    <div
-                        style={{
-                            background: "white",
-                            borderRadius: 16,
-                            padding: 16,
-                            boxShadow: "0 4px 20px rgba(75,43,31,0.08)",
-                            marginBottom: 16,
-                        }}
-                    >
-                        <h3 style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, fontWeight: 600, color: "#2D1B10", marginBottom: 16 }}>
-                            📅 Last 7 Days
-                        </h3>
-                        <ResponsiveContainer width="100%" height={160}>
-                            <BarChart data={weekly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f0e8e0" />
-                                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#999" }} />
-                                <YAxis tick={{ fontSize: 11, fill: "#999" }} />
-                                <Tooltip
-                                    formatter={(val) => [`${val} rounds`, "Japa"]}
-                                    contentStyle={{ borderRadius: 10, border: "1px solid #FFE0CC", fontSize: 12 }}
-                                />
-                                <Bar dataKey="rounds" fill="#FFB38E" radius={[6, 6, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-
-                    {/* Monthly trend */}
-                    <div
-                        style={{
-                            background: "white",
-                            borderRadius: 16,
-                            padding: 16,
-                            boxShadow: "0 4px 20px rgba(75,43,31,0.08)",
-                            marginBottom: 16,
-                        }}
-                    >
-                        <h3 style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, fontWeight: 600, color: "#2D1B10", marginBottom: 16 }}>
-                            📈 Monthly Trend
-                        </h3>
-                        <ResponsiveContainer width="100%" height={140}>
-                            <LineChart data={monthly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f0e8e0" />
-                                <XAxis dataKey="week" tick={{ fontSize: 11, fill: "#999" }} />
-                                <YAxis tick={{ fontSize: 11, fill: "#999" }} />
-                                <Tooltip
-                                    formatter={(val) => [`${val} rounds`, "Japa"]}
-                                    contentStyle={{ borderRadius: 10, border: "1px solid #FFE0CC", fontSize: 12 }}
-                                />
-                                <Line
-                                    type="monotone"
-                                    dataKey="rounds"
-                                    stroke="#FFB38E"
-                                    strokeWidth={3}
-                                    dot={{ fill: "#FFB38E", r: 5 }}
-                                    activeDot={{ r: 7 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-
-                    {/* Progress towards monthly goal */}
-                    <div
-                        style={{
-                            background: "white",
-                            borderRadius: 16,
-                            padding: 18,
-                            boxShadow: "0 4px 20px rgba(75,43,31,0.08)",
-                            marginBottom: 16,
-                        }}
-                    >
-                        <h3 style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, fontWeight: 600, color: "#2D1B10", marginBottom: 14 }}>
-                            🎯 Monthly Goal
-                        </h3>
-                        {[
-                            { label: "Japa Rounds", done: monthly.reduce((a, b) => a + b.rounds, 0), goal: 480, color: "#FFB38E" },
-                        ].map((g) => (
-                            <div key={g.label} style={{ marginBottom: 14 }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: "#4B2B1F" }}>{g.label}</span>
-                                    <span style={{ fontSize: 13, color: "#999" }}>{g.done}/{g.goal}</span>
-                                </div>
-                                <div style={{ height: 8, background: "#f0e8e0", borderRadius: 4, overflow: "hidden" }}>
-                                    <div
-                                        style={{
-                                            width: `${Math.min((g.done / g.goal) * 100, 100)}%`,
-                                            height: "100%",
-                                            background: g.color,
-                                            borderRadius: 4,
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            />
+                        </div>
+                    ))}
                 </div>
             </div>
+
+            {/* Fixed bottom Submit Button above nav */}
+            <div style={{
+                position: "fixed",
+                bottom: 60, // Fixed directly above bottom nav
+                left: 0,
+                right: 0,
+                padding: "16px 20px",
+                background: "white",
+                zIndex: 40,
+                margin: "0 auto",
+                maxWidth: 480
+            }}>
+                <button
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                    style={{
+                        background: "#3A1B12", // match mockup submit button color
+                        color: "white",
+                        border: "none",
+                        borderRadius: 12,
+                        width: "100%",
+                        padding: "18px 0",
+                        fontSize: 18,
+                        fontWeight: 700,
+                        fontFamily: "'Nunito', sans-serif",
+                        cursor: isLoading ? "not-allowed" : "pointer",
+                        opacity: isLoading ? 0.7 : 1
+                    }}
+                >
+                    {isLoading ? "Sending..." : "Send Report"}
+                </button>
+            </div>
+
             <BottomNav />
-        </div >
+        </div>
     );
 }
-

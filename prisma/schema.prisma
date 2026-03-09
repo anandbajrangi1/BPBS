@@ -45,6 +45,7 @@ model User {
   notifications Notification[]
   lessonProgress LessonProgress[]
   sevaVolunteering SevaVolunteer[]
+  sadhnaReports SadhnaReport[]
   accounts      Account[]
   sessions      Session[]
 }
@@ -245,4 +246,19 @@ model JapaSession {
   duration  Int      @default(0) // seconds
   date      DateTime @default(now())
   createdAt DateTime @default(now())
+}
+
+model SadhnaReport {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date         DateTime @default(now())
+  sleepTime    String?  // e.g., "10:00 PM"
+  wakeUpTime   String?  // e.g., "04:00 AM"
+  rounds       Int      @default(0)
+  readingHours Float    @default(0)
+  hearingHours Float    @default(0)
+  remarks      String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
