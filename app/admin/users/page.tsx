@@ -1,11 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Search, Shield, ShieldOff, Edit, ShieldCheck } from "lucide-react";
+import { Search, Shield, ShieldOff, Edit, ShieldCheck, Trash2 } from "lucide-react";
+import AdminEditUserModal from "@/components/AdminEditUserModal";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [query, setQuery] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [editingUser, setEditingUser] = useState<any>(null);
 
     useEffect(() => {
         fetchUsers();
@@ -47,6 +49,22 @@ export default function AdminUsersPage() {
             alert("Failed to update status");
             // Revert on failure
             setUsers((prev) => prev.map((u) => u.id === id ? { ...u, status: currentStatus } : u));
+        }
+    };
+
+    const deleteUser = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) return;
+
+        try {
+            const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });
+            if (res.ok) {
+                setUsers(prev => prev.filter(u => u.id !== id));
+            } else {
+                alert("Failed to delete user");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Network error");
         }
     };
 
@@ -117,7 +135,7 @@ export default function AdminUsersPage() {
                                     <td style={{ padding: "14px 16px" }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                             <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #FFB38E, #FFDA6C)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
-                                                🙏
+                                                {user.role === 'ADMIN' ? '🛡️' : '🙏'}
                                             </div>
                                             <span style={{ fontSize: 14, fontWeight: 700, color: "#2D1B10" }}>{user.name}</span>
                                         </div>
@@ -125,10 +143,10 @@ export default function AdminUsersPage() {
                                     <td style={{ padding: "14px 16px", fontSize: 13, color: "#666" }}>{user.phone}</td>
                                     <td style={{ padding: "14px 16px", fontSize: 13, color: "#666" }}>{user.email}</td>
                                     <td style={{ padding: "14px 16px", fontFamily: "'Crimson Text', serif", fontSize: 16, fontWeight: 700, color: "#4B2B1F" }}>
-                                        {user.japaRounds.toLocaleString()}
+                                        {(user.japaRounds || 0).toLocaleString()}
                                     </td>
                                     <td style={{ padding: "14px 16px", fontFamily: "'Crimson Text', serif", fontSize: 16, fontWeight: 700, color: "#FFB38E" }}>
-                                        ₹{user.totalDonation.toLocaleString()}
+                                        ₹{(user.totalDonation || 0).toLocaleString()}
                                     </td>
                                     <td style={{ padding: "14px 16px" }}>
                                         <span
@@ -143,6 +161,7 @@ export default function AdminUsersPage() {
                                         >
                                             {user.status}
                                         </span>
+                                        {user.role === 'ADMIN' && <span style={{ marginLeft: 6, fontSize: 9, fontWeight: 900, color: '#444', border: '1px solid #ddd', padding: '1px 4px', borderRadius: 4 }}>ADMIN</span>}
                                     </td>
                                     <td style={{ padding: "14px 16px" }}>
                                         <div style={{ display: "flex", gap: 8 }}>
@@ -164,6 +183,7 @@ export default function AdminUsersPage() {
                                                 {user.status === "ACTIVE" ? <ShieldOff size={14} color="#dc2626" /> : <ShieldCheck size={14} color="#16a34a" />}
                                             </button>
                                             <button
+                                                onClick={() => setEditingUser(user)}
                                                 style={{
                                                     width: 32,
                                                     height: 32,
@@ -179,6 +199,23 @@ export default function AdminUsersPage() {
                                             >
                                                 <Edit size={14} color="#FFB38E" />
                                             </button>
+                                            <button
+                                                onClick={() => deleteUser(user.id, user.name)}
+                                                style={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    borderRadius: 8,
+                                                    border: "none",
+                                                    background: "#fee2e2",
+                                                    cursor: "pointer",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                }}
+                                                title="Delete"
+                                            >
+                                                <Trash2 size={14} color="#dc2626" />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -187,6 +224,13 @@ export default function AdminUsersPage() {
                     </table>
                 </div>
             </div>
+
+            <AdminEditUserModal
+                isOpen={!!editingUser}
+                user={editingUser}
+                onClose={() => setEditingUser(null)}
+                onUpdate={fetchUsers}
+            />
         </div>
     );
 }

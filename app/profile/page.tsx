@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SignOutButton from "./SignOutButton";
 import Link from "next/link";
+import ProfileActions from "@/components/ProfileActions";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -60,6 +61,12 @@ export default async function ProfilePage() {
                         position: "relative",
                     }}
                 >
+                    <ProfileActions userData={{
+                        name: displayName,
+                        email: displayEmail,
+                        phone: displayPhone
+                    }} />
+
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                         <div
                             style={{

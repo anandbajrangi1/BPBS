@@ -46,6 +46,7 @@ model User {
   lessonProgress LessonProgress[]
   sevaVolunteering SevaVolunteer[]
   sadhnaReports SadhnaReport[]
+  eventRSVPs    EventRSVP[]
   accounts      Account[]
   sessions      Session[]
 }
@@ -110,6 +111,18 @@ model Event {
   attendees   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  rsvps       EventRSVP[]
+}
+
+model EventRSVP {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, eventId])
 }
 
 model Course {

@@ -3,6 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import { Calendar, MapPin, Users, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import RSVPButton from "@/components/RSVPButton";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -78,7 +79,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     {[
                         { icon: Calendar, text: dateObj.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" }) },
                         { icon: MapPin, text: `${event.venue}, ${event.location}` },
-                        { icon: Users, text: `${event.attendees} devotees attending` },
+                        // { icon: Users, text: `${event.attendees} devotees attending` }, // Moved to RSVPButton
                         { icon: Clock, text: "9:00 AM – 8:00 PM" },
                     ].map(({ icon: Icon, text }) => (
                         <div
@@ -98,6 +99,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                         </div>
                     ))}
 
+                    {/* RSVP Section */}
+                    {event.rsvp && (
+                        <RSVPButton eventId={event.id} />
+                    )}
+
                     {/* Description */}
                     <div style={{ marginTop: 20, marginBottom: 24 }}>
                         <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10", marginBottom: 10 }}>
@@ -110,24 +116,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                             Join us for this beautiful spiritual gathering. All devotees, well-wishers, and curious truth-seekers are warmly welcome. Prasad (sanctified food) will be served to all attendees.
                         </p>
                     </div>
-
-                    {/* CTA */}
-                    {event.rsvp && (
-                        <button
-                            className="btn-primary"
-                            style={{
-                                width: "100%",
-                                padding: 15,
-                                fontSize: 17,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 8,
-                            }}
-                        >
-                            🙏 RSVP for this Event
-                        </button>
-                    )}
                 </div>
             </div>
             <BottomNav />

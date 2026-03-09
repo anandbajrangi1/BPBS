@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Users } from "lucide-react";
 
 type Event = {
     id: string;
@@ -22,6 +22,11 @@ export default function AdminEventsPage() {
     const [form, setForm] = useState({ title: "", date: "", location: "", venue: "", description: "", category: "Festival" });
     const [isLoading, setIsLoading] = useState(true);
 
+    const [attendees, setAttendees] = useState<any[]>([]);
+    const [showAttendeesModal, setShowAttendeesModal] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [loadingAttendees, setLoadingAttendees] = useState(false);
+
     useEffect(() => {
         fetchEvents();
     }, []);
@@ -37,6 +42,23 @@ export default function AdminEventsPage() {
             console.error("Failed to fetch events", err);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchAttendees = async (event: Event) => {
+        setSelectedEvent(event);
+        setLoadingAttendees(true);
+        setShowAttendeesModal(true);
+        try {
+            const res = await fetch(`/api/events/${event.id}/attendees`);
+            if (res.ok) {
+                const data = await res.json();
+                setAttendees(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch attendees", err);
+        } finally {
+            setLoadingAttendees(false);
         }
     };
 
@@ -155,6 +177,20 @@ export default function AdminEventsPage() {
                                     </h3>
                                     <p style={{ fontSize: 12, color: "#999", marginBottom: 4 }}>📅 {new Date(event.date).toLocaleDateString("en-IN")}</p>
                                     <p style={{ fontSize: 12, color: "#999", marginBottom: 12 }}>📍 {event.location}</p>
+
+                                    <div style={{ background: "#FEFAF6", border: "1px solid #FFE0CC", borderRadius: 10, padding: "8px 12px", marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                            <Users size={14} color="#FFB38E" />
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: "#4B2B1F" }}>{event.attendees || 0}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => fetchAttendees(event)}
+                                            style={{ background: 'none', border: 'none', color: '#FFB38E', fontSize: 11, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+                                        >
+                                            View List
+                                        </button>
+                                    </div>
+
                                     <div style={{ display: "flex", gap: 8 }}>
                                         <button
                                             onClick={() => openEdit(event)}
@@ -280,6 +316,82 @@ export default function AdminEventsPage() {
                 </div>
             )
             }
+
+            {showAttendeesModal && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 100,
+                        padding: 20,
+                    }}
+                    onClick={(e) => e.target === e.currentTarget && setShowAttendeesModal(false)}
+                >
+                    <div style={{ background: "white", borderRadius: 20, padding: 28, width: "100%", maxWidth: 480, maxHeight: "90vh", overflowY: "auto" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                            <div>
+                                <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 22, fontWeight: 700, color: "#2D1B10" }}>
+                                    Attendees List
+                                </h2>
+                                <p style={{ fontSize: 13, color: "#888" }}>{selectedEvent?.title}</p>
+                            </div>
+                            <button onClick={() => setShowAttendeesModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}>
+                                <X size={20} color="#888" />
+                            </button>
+                        </div>
+
+                        {loadingAttendees ? (
+                            <p style={{ textAlign: 'center', padding: '40px 0', color: '#888' }}>Loading devotees list...</p>
+                        ) : attendees.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                                <p style={{ color: '#888', marginBottom: 4 }}>No devotees have RSVP'd yet.</p>
+                                <p style={{ fontSize: 12, color: '#999' }}>Users will appear here as they click 'RSVP'</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                {attendees.map((a: any) => (
+                                    <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px', borderRadius: 12, background: '#FEFAF6', border: '1px solid #FFE0CC' }}>
+                                        <div style={{ width: 40, height: 40, borderRadius: 20, background: '#FFB38E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: 'white', fontSize: 18 }}>
+                                            {a.name?.[0] || a.username?.[0] || "?"}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontSize: 14, fontWeight: 700, color: '#2D1B10' }}>{a.name || a.username}</p>
+                                            <p style={{ fontSize: 12, color: '#666' }}>{a.phone || "No phone provided"}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ fontSize: 10, color: '#999' }}>Joined on</p>
+                                            <p style={{ fontSize: 11, fontWeight: 600, color: '#4B2B1F' }}>{new Date(a.rsvpDate).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => setShowAttendeesModal(false)}
+                            style={{
+                                width: "100%",
+                                padding: 13,
+                                background: "#4B2B1F",
+                                border: "none",
+                                borderRadius: 12,
+                                fontWeight: 700,
+                                fontSize: 15,
+                                color: "white",
+                                cursor: "pointer",
+                                marginTop: 24,
+                                fontFamily: "'Nunito', sans-serif",
+                            }}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

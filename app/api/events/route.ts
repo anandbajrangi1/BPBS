@@ -5,10 +5,22 @@ import { auth } from "@/auth";
 // GET /api/events — list all events
 export async function GET(req: NextRequest) {
     try {
-        const events = await prisma.event.findMany({
+        const events = await (prisma.event as any).findMany({
+            include: {
+                _count: {
+                    select: { rsvps: true }
+                }
+            },
             orderBy: { date: "asc" },
         });
-        return NextResponse.json(events);
+
+        // Map _count.rsvps to attendees for compatibility with existing UI
+        const mappedEvents = events.map(e => ({
+            ...e,
+            attendees: e._count.rsvps
+        }));
+
+        return NextResponse.json(mappedEvents);
     } catch (err) {
         console.error("[GET /api/events]", err);
         return NextResponse.json({ error: "Server error" }, { status: 500 });
