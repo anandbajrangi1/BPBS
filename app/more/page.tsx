@@ -10,9 +10,9 @@ const menuItems = [
     { emoji: "📿", label: "Japa History", sub: "All chanting sessions", href: "/reporting" },
     { emoji: "💝", label: "Donation History", sub: "View all payments", href: "/donate" },
     { emoji: "👥", label: "Community", sub: "Connect with devotees", href: "#" },
-    { emoji: "📞", label: "Contact Us", sub: "Reach the temple", href: "#" },
-    { emoji: "🛡️", label: "Privacy Policy", sub: "How we use your data", href: "#" },
-    { emoji: "ℹ️", label: "About BPBS", sub: "Our mission & vision", href: "#" },
+    { emoji: "📞", label: "Contact Us", sub: "Reach the temple", href: "/pages/contact-us" },
+    { emoji: "🛡️", label: "Privacy Policy", sub: "How we use your data", href: "/pages/privacy-policy" },
+    { emoji: "ℹ️", label: "About BPBS", sub: "Our mission & vision", href: "/pages/about-us" },
     { emoji: "🛠️", label: "Admin Panel", sub: "Management dashboard", href: "/admin" },
 ];
 
