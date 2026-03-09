@@ -26,6 +26,27 @@ export async function PATCH(
     }
 }
 
+// GET /api/lessons/[id] - Fetch a specific lesson
+export async function GET(
+    req: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const { id } = await params;
+    try {
+        const lesson = await prisma.lesson.findUnique({
+            where: { id },
+        });
+
+        if (!lesson) {
+            return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(lesson);
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to fetch lesson" }, { status: 500 });
+    }
+}
+
 // DELETE /api/lessons/[id] - Delete a lesson (Admin only)
 export async function DELETE(
     req: Request,
