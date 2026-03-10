@@ -1,22 +1,58 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Play, Pause, Download, Heart } from "lucide-react";
 
 const TYPE_COLORS: Record<string, string> = {
     kirtan: "#FFB38E",
     bhajan: "#FFDA6C",
     prayer: "#c8f5d8",
+    stotra: "#E8A07A",
+    mantra: "#F5C96B",
 };
 
 export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
-    const [playing, setPlaying] = useState<string | null>(null);
+    const [playingId, setPlayingId] = useState<string | null>(null);
     const [liked, setLiked] = useState<Set<string>>(new Set());
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Get the first featured kirtan or just the first kirtan for the Hero button
+    const featuredKirtan = kirtans.find(k => k.featured) || kirtans[0];
+
+    const togglePlayback = (kirtan: any) => {
+        if (!kirtan.url) return;
+
+        if (playingId === kirtan.id) {
+            audioRef.current?.pause();
+            setPlayingId(null);
+        } else {
+            if (audioRef.current) {
+                audioRef.current.src = kirtan.url;
+                audioRef.current.play();
+                setPlayingId(kirtan.id);
+            }
+        }
+    };
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const handleEnded = () => {
+            setPlayingId(null);
+        };
+
+        audio.addEventListener('ended', handleEnded);
+        return () => audio.removeEventListener('ended', handleEnded);
+    }, []);
 
     return (
         <>
+            <audio ref={audioRef} style={{ display: "none" }} />
+
             <div style={{ display: "flex", gap: 10, padding: "0 20px 24px", background: "linear-gradient(135deg, #4B2B1F, #7B452F)" }}>
                 <button
-                    onClick={() => setPlaying(playing === "1" ? null : "1")}
+                    disabled={!featuredKirtan}
+                    onClick={() => featuredKirtan && togglePlayback(featuredKirtan)}
                     style={{
                         display: "flex",
                         alignItems: "center",
@@ -28,12 +64,13 @@ export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
                         fontWeight: 700,
                         color: "#4B2B1F",
                         fontSize: 14,
-                        cursor: "pointer",
+                        cursor: featuredKirtan ? "pointer" : "not-allowed",
                         fontFamily: "'Nunito', sans-serif",
+                        opacity: featuredKirtan ? 1 : 0.6
                     }}
                 >
-                    {playing === "1" ? <Pause size={16} /> : <Play size={16} />}
-                    {playing === "1" ? "Pause" : "Play Now"}
+                    {playingId === featuredKirtan?.id ? <Pause size={16} /> : <Play size={16} />}
+                    {playingId === featuredKirtan?.id ? "Pause" : "Play Now"}
                 </button>
                 <button
                     style={{
@@ -76,17 +113,17 @@ export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
                                     alignItems: "center",
                                     gap: 14,
                                     boxShadow: "0 2px 12px rgba(75,43,31,0.06)",
-                                    border: playing === kirtan.id ? "1.5px solid #FFB38E" : "1.5px solid transparent",
+                                    border: playingId === kirtan.id ? "1.5px solid #FFB38E" : "1.5px solid transparent",
                                 }}
                             >
                                 {/* Play icon */}
                                 <button
-                                    onClick={() => setPlaying(playing === kirtan.id ? null : kirtan.id)}
+                                    onClick={() => togglePlayback(kirtan)}
                                     style={{
                                         width: 44,
                                         height: 44,
                                         borderRadius: "50%",
-                                        background: playing === kirtan.id
+                                        background: playingId === kirtan.id
                                             ? "linear-gradient(135deg, #FFB38E, #FFDA6C)"
                                             : "#FFF3EC",
                                         border: "none",
@@ -94,10 +131,11 @@ export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
                                         alignItems: "center",
                                         justifyContent: "center",
                                         flexShrink: 0,
-                                        cursor: "pointer",
+                                        cursor: kirtan.url ? "pointer" : "not-allowed",
+                                        opacity: kirtan.url ? 1 : 0.5
                                     }}
                                 >
-                                    {playing === kirtan.id
+                                    {playingId === kirtan.id
                                         ? <Pause size={18} color="#4B2B1F" />
                                         : <Play size={18} color="#FFB38E" />
                                     }
@@ -118,12 +156,13 @@ export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
                                             fontSize: 10,
                                             fontWeight: 700,
                                             color: "#4B2B1F",
-                                            background: TYPE_COLORS[kirtan.type] || "#FFB38E",
+                                            background: TYPE_COLORS[kirtan.type.toLowerCase()] || "#FFB38E",
                                             padding: "2px 8px",
                                             borderRadius: 999,
+                                            textTransform: "uppercase"
                                         }}
                                     >
-                                        {kirtan.type.toUpperCase()}
+                                        {kirtan.type}
                                     </span>
                                     <button
                                         onClick={() => {
