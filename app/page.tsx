@@ -2,8 +2,9 @@ import BottomNav from "@/components/BottomNav";
 import Slideshow from "@/components/Slideshow";
 import EventCard from "@/components/EventCard";
 import Link from "next/link";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import NotificationBell from "@/components/NotificationBell";
 
 const sadhnaItems = [
   { label: "Japa", href: "/japa", emoji: "📿" },
@@ -51,21 +52,7 @@ export default async function HomePage() {
             </h1>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                border: "none",
-                background: "rgba(255,255,255,0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <Bell size={18} color="white" />
-            </button>
+            <NotificationBell />
             <Link href="/profile">
               <div
                 style={{
@@ -110,7 +97,7 @@ export default async function HomePage() {
       <div className="pb-nav" style={{ overflowY: "auto", height: "calc(100dvh - 142px)" }}>
 
         {/* Slideshow */}
-        <div style={{ paddingTop: 16 }}>
+        <div style={{ paddingTop: 8 }}>
           <Slideshow slides={slides} />
         </div>
 
@@ -162,7 +149,9 @@ export default async function HomePage() {
             <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 20, fontWeight: 600, color: "#2D1B10" }}>
               🕉️ Sadhna
             </h2>
-            <span style={{ fontSize: 12, color: "#FFB38E", fontWeight: 600 }}>See all</span>
+            <Link href="/reporting" style={{ textDecoration: "none" }}>
+              <span style={{ fontSize: 12, color: "#FFDA6C", fontWeight: 700 }}>See all</span>
+            </Link>
           </div>
           <div
             className="scrollbar-hide"
