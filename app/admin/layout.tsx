@@ -23,7 +23,8 @@ const navItems = [
     { href: "/admin/courses", icon: BookOpen, label: "Courses" },
     { href: "/admin/kirtans", icon: Music, label: "Kirtans" },
     { href: "/admin/slides", icon: Image, label: "Slides" },
-    { href: "/admin/pages", icon: FileVideo, label: "Pages" }, // Reusing FileVideo or FileText
+    { href: "/admin/pages", icon: FileVideo, label: "Pages" },
+    { href: "/admin/books", icon: BookOpen, label: "Books" },
     { href: "/admin/donations", icon: HeartHandshake, label: "Donations" },
 ];
 
