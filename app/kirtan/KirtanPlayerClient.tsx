@@ -13,10 +13,18 @@ const TYPE_COLORS: Record<string, string> = {
 export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
     const [playingId, setPlayingId] = useState<string | null>(null);
     const [liked, setLiked] = useState<Set<string>>(new Set());
+    const [mounted, setMounted] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Get the first featured kirtan or just the first kirtan for the Hero button
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Get the first featured kirtan or just the first kirtan for the Hero state
     const featuredKirtan = kirtans.find(k => k.featured) || kirtans[0];
+
+    // Dynamic banner content based on whether something is playing
+    const activeKirtan = kirtans.find(k => k.id === playingId) || featuredKirtan;
 
     const togglePlayback = (kirtan: any) => {
         if (!kirtan.url) return;
@@ -29,6 +37,9 @@ export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
                 audioRef.current.src = kirtan.url;
                 audioRef.current.play();
                 setPlayingId(kirtan.id);
+
+                // Fire and forget play count update
+                fetch(`/api/public/kirtans/${kirtan.id}/play`, { method: "POST" }).catch(() => { });
             }
         }
     };
@@ -45,53 +56,74 @@ export default function KirtanPlayerClient({ kirtans }: { kirtans: any[] }) {
         return () => audio.removeEventListener('ended', handleEnded);
     }, []);
 
+    if (!mounted) return <div style={{ minHeight: "200px", background: "#4B2B1F" }} />;
+
     return (
         <>
             <audio ref={audioRef} style={{ display: "none" }} />
 
-            <div style={{ display: "flex", gap: 10, padding: "0 20px 24px", background: "linear-gradient(135deg, #4B2B1F, #7B452F)" }}>
-                <button
-                    disabled={!featuredKirtan}
-                    onClick={() => featuredKirtan && togglePlayback(featuredKirtan)}
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        background: "linear-gradient(135deg, #FFB38E, #FFDA6C)",
-                        border: "none",
-                        borderRadius: 999,
-                        padding: "10px 20px",
-                        fontWeight: 700,
-                        color: "#4B2B1F",
-                        fontSize: 14,
-                        cursor: featuredKirtan ? "pointer" : "not-allowed",
-                        fontFamily: "'Nunito', sans-serif",
-                        opacity: featuredKirtan ? 1 : 0.6
-                    }}
-                >
-                    {playingId === featuredKirtan?.id ? <Pause size={16} /> : <Play size={16} />}
-                    {playingId === featuredKirtan?.id ? "Pause" : "Play Now"}
-                </button>
-                <button
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                        background: "rgba(255,255,255,0.1)",
-                        border: "1px solid rgba(255,255,255,0.2)",
-                        borderRadius: 999,
-                        padding: "10px 16px",
-                        color: "white",
-                        fontSize: 13,
-                        cursor: "pointer",
-                        fontFamily: "'Nunito', sans-serif",
-                    }}
-                >
-                    <Download size={14} /> Save
-                </button>
+            {/* Featured / Active Banner */}
+            <div
+                style={{
+                    background: "linear-gradient(135deg, #4B2B1F, #7B452F)",
+                    padding: "24px 20px 0",
+                    margin: "0",
+                }}
+            >
+                <p style={{ color: "#FFDA6C", fontSize: 11, fontWeight: 700, letterSpacing: 2, marginBottom: 8 }}>
+                    {playingId ? "🎵 NOW PLAYING" : "🌟 FEATURED RECORDING"}
+                </p>
+                <h2 style={{ fontFamily: "'Crimson Text', serif", fontSize: 22, fontWeight: 700, color: "white", marginBottom: 4 }}>
+                    {activeKirtan?.title || "No Title"}
+                </h2>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginBottom: 16 }}>
+                    {activeKirtan?.artist || "Unknown Artist"} · {activeKirtan?.duration || "N/A"}
+                </p>
+
+                <div style={{ display: "flex", gap: 10, paddingBottom: 24 }}>
+                    <button
+                        disabled={!activeKirtan}
+                        onClick={() => activeKirtan && togglePlayback(activeKirtan)}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            background: "linear-gradient(135deg, #FFB38E, #FFDA6C)",
+                            border: "none",
+                            borderRadius: 999,
+                            padding: "10px 20px",
+                            fontWeight: 700,
+                            color: "#4B2B1F",
+                            fontSize: 14,
+                            cursor: activeKirtan?.url ? "pointer" : "not-allowed",
+                            fontFamily: "'Nunito', sans-serif",
+                            opacity: activeKirtan?.url ? 1 : 0.6
+                        }}
+                    >
+                        {playingId === activeKirtan?.id ? <Pause size={16} /> : <Play size={16} />}
+                        {playingId === activeKirtan?.id ? "Pause" : "Play Now"}
+                    </button>
+                    <button
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            background: "rgba(255,255,255,0.1)",
+                            border: "1px solid rgba(255,255,255,0.2)",
+                            borderRadius: 999,
+                            padding: "10px 16px",
+                            color: "white",
+                            fontSize: 13,
+                            cursor: "pointer",
+                            fontFamily: "'Nunito', sans-serif",
+                        }}
+                    >
+                        <Download size={14} /> Save
+                    </button>
+                </div>
             </div>
 
-            {/* Category filter */}
+            {/* List section */}
             <div style={{ padding: "16px 16px 8px" }}>
                 <h3 style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, fontWeight: 600, color: "#2D1B10", marginBottom: 14 }}>
                     All Recordings
