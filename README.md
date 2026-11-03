@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# BPBS: Bhakti Pratap Bhajana Sangha
 
-First, run the development server:
+**A spiritual home online for japa chanting, kirtans, courses, events and devotional service.**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+[**Live site → bpbs.vercel.app**](https://bpbs.vercel.app)
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Razorpay](https://img.shields.io/badge/Razorpay-0C2451?style=flat-square&logo=razorpay&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+
+</div>
+
+---
+
+## What it does
+
+BPBS brings the community's daily practice and activities into one mobile-first app.
+
+### For devotees
+- **Japa counter:** chant on a 108-bead mala, count your rounds and save every session to your account
+- **Sadhana reporting:** log your daily practice and look back on your progress
+- **Kirtans:** listen to the kirtan library, with play counts
+- **Courses:** enroll, work through lessons and track your progress
+- **Reading room:** read devotional books in the browser
+- **Events:** browse upcoming programmes and RSVP
+- **Seva:** find volunteer opportunities and sign up
+- **Donations:** give securely through Razorpay and see your donation history
+- **Profile:** your courses, donations and notifications in one place
+
+### For administrators
+A built-in admin panel manages **users, events, courses and lessons, kirtans, books, seva opportunities, donations, homepage slides and custom content pages**. No code changes are needed to update the site.
+
+### Sign-in
+Phone OTP (Fast2SMS, with MSG91 as a fallback), Google sign-in, or username and password. Built on Auth.js (NextAuth v5).
+
+## Tech stack
+
+| Layer | Choice |
+| :-- | :-- |
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Database | PostgreSQL via Prisma ORM |
+| Auth | Auth.js / NextAuth v5 with Google and OTP, bcrypt-hashed passwords |
+| Payments | Razorpay |
+| Charts | Recharts |
+| Validation | Zod |
+| Styling | Tailwind CSS 4, Lucide icons |
+
+## Project structure
+
+```
+app/
+├── japa/  kirtan/  courses/  reading/  events/  seva/  donate/  reporting/
+├── profile/           # My courses, my donations
+├── admin/             # Users, events, courses, kirtans, books, seva, donations, slides, pages
+├── pages/[slug]/      # CMS-driven content pages
+└── api/               # Auth (OTP, signup), public + admin APIs
+components/            # Header, BottomNav, Slideshow, BookEditor, PageEditor, ...
+prisma/
+├── schema.prisma      # User, Event, Course, Lesson, Kirtan, JapaSession, SadhnaReport, Donation, Book, ...
+└── seed.ts
+scripts/               # Admin setup and content seeding
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Getting started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Requirements:** Node.js 20+ and a PostgreSQL database.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/anandbajrangi1/BPBS.git
+cd BPBS
+npm install            # also runs `prisma generate`
+```
 
-## Learn More
+Create a `.env` file:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+DATABASE_URL="postgresql://user:password@host/db?sslmode=require"
+AUTH_SECRET="a-long-random-string"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+RAZORPAY_KEY_ID=""
+RAZORPAY_KEY_SECRET=""
 
-## Deploy on Vercel
+# SMS OTP: set one provider
+FAST2SMS_API_KEY=""
+MSG91_AUTH_KEY=""
+MSG91_TEMPLATE_ID=""
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Set up the database and run the app:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run db:migrate     # create tables
+npm run db:seed        # optional: sample content
+npm run dev            # http://localhost:3000
+```
+
+### Set the admin password
+
+Run the interactive setup, which asks for the username and password:
+
+```bash
+npx tsx scripts/setup-admin-password.ts
+```
+
+Or run it non-interactively with environment variables:
+
+```bash
+ADMIN_USERNAME="admin" ADMIN_PASSWORD="choose-a-strong-password" npx tsx scripts/raw-admin-update.ts
+```
+
+## Scripts
+
+| Command | What it does |
+| :-- | :-- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run db:migrate` | Run Prisma migrations |
+| `npm run db:push` | Push the schema without a migration |
+| `npm run db:seed` | Seed sample data |
+
+---
+
+<div align="center">
+<sub>Built by <a href="https://github.com/anandbajrangi1">Anand Bajrangi</a> · <a href="https://evolvcode.com">Evolvcode Solutions</a></sub>
+</div>
