@@ -4,9 +4,14 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-    const email = "admin@bpbs.org";
-    const username = "admin";
-    const password = "admin123";
+    const email = process.env.ADMIN_EMAIL || "admin@bpbs.org";
+    const username = process.env.ADMIN_USERNAME || "admin";
+    const password = process.env.ADMIN_PASSWORD;
+
+    if (!password) {
+        console.error("❌ Set ADMIN_PASSWORD (and optionally ADMIN_USERNAME / ADMIN_EMAIL) before running this script.");
+        process.exit(1);
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -20,7 +25,6 @@ async function main() {
 
     console.log(`✅ Admin updated with raw SQL!`);
     console.log(`Username: ${username}`);
-    console.log(`Password: ${password}`);
 }
 
 main()
